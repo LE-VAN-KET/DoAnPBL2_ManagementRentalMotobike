@@ -57,6 +57,10 @@ int Category::getNumber()
 
 Category::~Category()
 {
+	for (unsigned int i = 0; i < Moto.size(); ++i) {
+		Motobike* pMoto = Moto.at(i);
+		delete pMoto;
+	}
 	this->Moto.clear();
 }
 //=================== NHAP THONG TIN Category Moto =======================
@@ -86,6 +90,7 @@ vector<Motobike*>& Category::getListMoto() {
 }
 
 void Category::removeMoto(int pos_moto) {
+	//delete Moto[pos_moto];
 	for (int i = pos_moto; i < Moto.size() - 1; ++i) {
 		Moto[i] = Moto[i + 1];
 	}

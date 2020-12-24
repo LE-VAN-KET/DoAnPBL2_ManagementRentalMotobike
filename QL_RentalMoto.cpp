@@ -294,6 +294,17 @@ void QL_RentalMoto::insertRental(Rental* rental, int ma_motobike, int pos_custom
 	update.Execute();
 	if (rental->getRentalID() == 0) this->selectRental();
 	else {
+		SACommand select;
+		select.setConnection(&con);
+		select.setCommandText(_TSA(("SELECT ThanhTien FROM Rental WHERE MaKH = :MaKH AND Rent_date = :Rent_date AND MaXe = :MaXe")));
+		select.Param(_TSA("MaKH")).setAsInt64() = this->Customer[pos_customer]->getMaKH();
+		select.Param(_TSA("Rent_date")).setAsDateTime() = Rent_date;
+		select.Param(_TSA("MaXe")).setAsInt64() = ma_motobike;
+		select.Execute();
+		while (select.FetchNext()) {
+			double ThanhTien = select.Field("ThanhTien").asDouble();
+			rental->setThanhTien(ThanhTien);
+		}
 		rental->setRentalID(rental->getRentalID() + 1);
 		rental->setMaRental(rental->getRentalID());
 		this->Customer[pos_customer]->addRental(rental);
@@ -737,11 +748,24 @@ void QL_RentalMoto::updateMotobike() {
 			update.Param(_TSA("MaLoaiXeNew")).setAsInt64() = TypeMoto[pos_Category]->getMaLoaiXe();
 			update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
 			update.Execute();
+			SACommand updateCategory;
+			updateCategory.setConnection(&con);
+			updateCategory.setCommandText(_TSA("UPDATE Category SET Number = Number + 1 WHERE MaLoaiXe = :MaLoaiXeNew"));
+			updateCategory.Param(_TSA("MaLoaiXeNew")).setAsInt64() = TypeMoto[pos_Category]->getMaLoaiXe();
+			updateCategory.Execute();
+			int pos_category = this->searchCategoryOfMotobike(moto->getTenXe());
+			SACommand updateCategoryOld;
+			updateCategoryOld.setConnection(&con);
+			updateCategoryOld.setCommandText(_TSA("UPDATE Category SET Number = Number - 1 WHERE MaLoaiXe = :MaLoaiXeOld"));
+			updateCategoryOld.Param(_TSA("MaLoaiXeOld")).setAsInt64() = TypeMoto[pos_category]->getMaLoaiXe();
+			updateCategoryOld.Execute();
 			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
 				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
 					if (TypeMoto[i]->getListMoto()[j]->getMaXe() == moto->getMaXe()) {
-						TypeMoto[pos_Category]->addMotobike(moto);
 						TypeMoto[i]->removeMoto(j);
+						TypeMoto[i]->setNumber(TypeMoto[i]->getNumber() - 1);
+						TypeMoto[pos_Category]->addMotobike(moto);
+						TypeMoto[pos_Category]->setNumber(TypeMoto[pos_Category]->getNumber() + 1);
 						return;
 					}
 				}
@@ -1681,7 +1705,7 @@ bool QL_RentalMoto::isValidNameCategorySame(const char* name) {
 	return true;
 }
 
-void QL_RentalMoto::searchCategory() {
+Category* QL_RentalMoto::searchCategory() {
 	cout << "\tSEARCH CATEGORY" << endl;
 	cout << "\t1. Search Ma Category Motobike" << endl;
 	cout << "\t2. Searc Name Category Motrobike" << endl;
@@ -1702,6 +1726,7 @@ void QL_RentalMoto::searchCategory() {
 					int pos_Category = this->searchMaCategory(maCategory);
 					if (pos_Category == -1) throw invalid_argument("Note: Ma Loai Xe Not Exists!");
 					cout << *TypeMoto[pos_Category];
+					return TypeMoto[pos_Category];
 					flash = true;
 				}
 				catch (invalid_argument& exception) {
@@ -1721,6 +1746,7 @@ void QL_RentalMoto::searchCategory() {
 					int pos_Category = this->searchNameCategory(nameCategory);
 					if (pos_Category == -1) throw invalid_argument("Note: Ten Loai Xe Not Exists!");
 					cout << *TypeMoto[pos_Category];
+					return TypeMoto[pos_Category];
 					flash = true;
 				}
 				catch (invalid_argument& exception) {
@@ -1735,6 +1761,7 @@ void QL_RentalMoto::searchCategory() {
 			break;
 		}
 	} while (!check);
+	return NULL;
 }
 
 bool QL_RentalMoto::isValidBienSoMotobikeSame(const char* bienso) {
@@ -1766,23 +1793,141 @@ int QL_RentalMoto::searchCategoryOfMotobike(const char* TenXe) {
 }
 
 void QL_RentalMoto::deleteCustomers() {
-	Customers* KhachHang = this->searchCustomer();
+	Customers* KhachHang = this->searchCustomer("delete");
 	if (KhachHang == NULL) return;
-	vector<int> listMaRental;
 	SACommand select;
 	select.setConnection(&con);
-	select.setCommandText(_TSA("SELECT MaRental, MaXe FROM Rental WHERE MaKH = :MaKH"));
+	select.setCommandText(_TSA("SELECT Rental.MaRental, Rental.MaXe, Motobike.MaLoaiXe FROM Rental INNER JOIN Motobike ON Rental.MaXe = Motobike.MaXe WHERE Rental.MaKH = :MaKH"));
 	select.Param(_TSA("MaKH")).setAsInt64() = KhachHang->getMaKH();
 	select.Execute();
 	while (select.FetchNext()) {
 		sa_int64_t MaRental = select.Field("MaRental").asInt64();
 		sa_int64_t MaXe = select.Field("MaXe").asInt64();
-		int pos_customer = this->searchMaCustomer(KhachHang->getMaKH());
-		delete Customer[pos_customer];
-		Customer[pos_customer] = nullptr;
-		for (unsigned int i = pos_customer; i < Customer.size() - 1; ++i) {
-			Customer[i] = Customer[i + 1];
+		sa_int64_t MaLoaiXe = select.Field("MaLoaiXe").asInt64();
+		int pos_category = this->searchMaCategory((int)MaLoaiXe);
+		for (unsigned int j = 0; j < TypeMoto[pos_category]->getListMoto().size(); ++j) {
+			if (TypeMoto[pos_category]->getListMoto()[j]->getMaXe() == (int)MaXe) {
+				for (unsigned int k = 0; k < TypeMoto[pos_category]->getListMoto()[j]->getListRental().size(); ++k) {
+					if (TypeMoto[pos_category]->getListMoto()[j]->getListRental()[k]->getMaRental() == MaRental) {
+						//TypeMoto[pos_category]->getListMoto()[j]->getListRental()[k]->read();
+						TypeMoto[pos_category]->getListMoto()[j]->removeRental(k);
+					}
+				}
+			}
 		}
-		Customer.reserve(Customer.size() - 1);
 	}
+	SACommand Del;
+	Del.setConnection(&con);
+	Del.setCommandText(_TSA("DELETE FROM Customers WHERE MaKH = :MaKH"));
+	Del.Param(_TSA("MaKH")).setAsInt64() = KhachHang->getMaKH();
+	Del.Execute();
+	int pos_customer = this->searchMaCustomer(KhachHang->getMaKH());
+	delete Customer[pos_customer];
+	for (unsigned int i = pos_customer; i < Customer.size() - 1; ++i) {
+		Customer[i] = Customer[i + 1];
+	}
+	Customer.resize(Customer.size() - 1);
+}
+
+void QL_RentalMoto::deleteCategory() {
+	Category* type = this->searchCategory();
+	if (type == NULL) return;
+	SACommand select;
+	select.setConnection(&con);
+	select.setCommandText(_TSA("SELECT Rental.MaRental, Rental.MaKH FROM Category INNER JOIN Motobike ON Category.MaLoaiXe = Motobike.MaLoaiXe INNER JOIN Rental ON Motobike.MaXe = Rental.MaXe WHERE Category.MaLoaiXe = :MaLoaiXe"));
+	select.Param(_TSA("MaLoaiXe")).setAsInt64() = type->getMaLoaiXe();
+	select.Execute();
+	while (select.FetchNext()) {
+		sa_int64_t MaRental = select.Field("MaRental").asInt64();
+		sa_int64_t MaKH = select.Field("MaKH").asInt64();
+		int pos_customer = this->searchMaCustomer((int)MaKH);
+		for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
+			if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
+				Customer[pos_customer]->removeRental(i);
+			}
+		}
+	}
+	SACommand Del;
+	Del.setConnection(&con);
+	Del.setCommandText(_TSA("DELETE FROM Category WHERE MaLoaiXe = :MaLoaiXe"));
+	Del.Param(_TSA("MaLoaiXe")).setAsInt64() = type->getMaLoaiXe();
+	Del.Execute();
+	int pos_category = this->searchMaCategory(type->getMaLoaiXe());
+	delete TypeMoto[pos_category];
+	for (unsigned int i = pos_category; i < TypeMoto.size() - 1; ++i) {
+		TypeMoto[i] = TypeMoto[i + 1];
+	}
+	TypeMoto.resize(TypeMoto.size() - 1);
+}
+
+void QL_RentalMoto::deleteMotobike() {
+	Motobike* moto = this->searchMotobike("delete");
+	if (moto == NULL) return;
+	SACommand select;
+	select.setConnection(&con);
+	select.setCommandText(_TSA("SELECT Rental.MaKH, Rental.MaRental FROM Motobike INNER JOIN Rental ON Motobike.MaXe = Rental.MaXe WHERE Motobike.MaXe = :MaXe"));
+	select.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+	select.Execute();
+	while (select.FetchNext()) {
+		sa_int64_t MaKH = select.Field("MaKH").asInt64();
+		sa_int64_t MaRental = select.Field("MaRental").asInt64();
+		int pos_customer = this->searchMaCustomer((int)MaKH);
+		for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
+			if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
+				Customer[pos_customer]->removeRental(i);
+			}
+		}
+	}
+	SACommand Del;
+	Del.setConnection(&con);
+	Del.setCommandText(_TSA("DELETE FROM Motobike WHERE MaXe = :MaXe"));
+	Del.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+	Del.Execute();
+	int pos_category = this->searchCategoryOfMotobike(moto->getTenXe());
+	for (unsigned int i = 0; i < TypeMoto[pos_category]->getListMoto().size(); ++i) {
+		if (TypeMoto[pos_category]->getListMoto()[i]->getMaXe() == moto->getMaXe()) {
+			delete TypeMoto[pos_category]->getListMoto()[i];
+			for (unsigned int j = i; j < TypeMoto[pos_category]->getListMoto().size() - 1; ++i) {
+				TypeMoto[pos_category]->getListMoto()[j] = TypeMoto[pos_category]->getListMoto()[j + 1];
+			}
+			TypeMoto[pos_category]->getListMoto().resize(TypeMoto[pos_category]->getListMoto().size() - 1);
+			break;
+		}
+	}
+}
+
+void QL_RentalMoto::deleteRental() {
+	Rental* rental = this->searchRental("delete");
+	if (rental == NULL) return;
+	SACommand select;
+	select.setConnection(&con);
+	select.setCommandText(_TSA("SELECT Rental.MaKH, Rental.MaRental, Rental.MaXe FROM Rental INNER JOIN Customers ON Rental.MaKH = Customers.MaKH INNER JOIN Motobike ON Rental.MaXe = Motobike.MaXe WHERE Rental.MaRental = :MaRental"));
+	select.Param(_TSA("MaRental")).setAsInt64() = rental->getMaRental();
+	select.Execute();
+	while (select.FetchNext()) {
+		sa_int64_t MaKH = select.Field("MaKh").asInt64();
+		sa_int64_t MaXe = select.Field("MaXe").asInt64();
+		sa_int64_t MaRental = select.Field("MaRental").asInt64();
+		int pos_customer = this->searchMaCustomer((int)MaKH);
+		for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
+			if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
+				Customer[pos_customer]->removeRental(i);
+			}
+		}
+		for (unsigned int i = 0; i < TypeMoto.size(); ++i)
+			for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
+				if (TypeMoto[i]->getListMoto()[j]->getMaXe() == (int)MaXe) {
+					for (unsigned int k = 0; k < TypeMoto[i]->getListMoto()[j]->getListRental().size(); ++k) {
+						if (TypeMoto[i]->getListMoto()[j]->getListRental()[k]->getMaRental() == MaRental) {
+							TypeMoto[i]->getListMoto()[j]->removeRental(k);
+						}
+					}
+				}
+			}
+	}
+	SACommand Del;
+	Del.setConnection(&con);
+	Del.setCommandText(_TSA("DELETE FROM Rental WHERE MaRental = :Marental"));
+	Del.Param(_TSA("Marental")).setAsInt64() = rental->getMaRental();
+	Del.Execute();
 }

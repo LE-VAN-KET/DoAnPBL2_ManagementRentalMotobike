@@ -1,5 +1,6 @@
 #include "Rental.h"
 #include <iostream>
+#include <iomanip>
 using namespace std;
 
 int Rental::RentalID = 0;
@@ -61,7 +62,7 @@ void Rental::read() {
 	this->RentDay.showDate();
 	cout << "Return day: ";
 	this->ReturnDay.showDate();
-	cout << "Thanh Tien: " << this->ThanhTien << endl;
+	cout << "Thanh Tien: " << setprecision(3) << fixed << this->ThanhTien << endl;
 	cout << "Status: " << this->Status << endl;
 }
 

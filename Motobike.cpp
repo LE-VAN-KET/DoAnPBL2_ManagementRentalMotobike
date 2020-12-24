@@ -92,6 +92,7 @@ vector<Rental*>& Motobike::getListRental() {
 }
 
 void Motobike::removeRental(int pos_rental) {
+	//delete rental[pos_rental];
 	for (unsigned int i = pos_rental; i < rental.size() - 1; ++i) {
 		this->rental[i] = this->rental[i + 1];
 	}

@@ -27,6 +27,10 @@ void menu_Category(QL_RentalMoto*& db) {
 			db->readCategory();
 			check = true;
 			break;
+		case 4:
+			db->deleteCategory();
+			check = true;
+			break;
 		case 5:
 		{
 			db->searchCategory();
@@ -71,6 +75,10 @@ void menu_Motobikes(QL_RentalMoto*& db) {
 			break;
 		case 3:
 			db->updateMotobike();
+			check = true;
+			break;
+		case 4:
+			db->deleteMotobike();
 			check = true;
 			break;
 		case 5:
@@ -155,6 +163,10 @@ void menu_Rental(QL_RentalMoto*& db) {
 			db->updateRental();
 			check = true;
 			break;
+		case 4:
+			db->deleteRental();
+			check = true;
+			break;
 		case 5:
 			db->searchRental();
 			check = true;
@@ -220,15 +232,6 @@ int main()
 	database->selectMotobike();
 	database->selectRental();
 	Menu(database);
-	////database->addCategory();
-	////database->updateCategoryMotobike();
-	////database->addMotobike();
-	////database->searchMotobike();
-	//database->readCustomer();
-	//database->readAllRental();
-	//database->ReturnMotobike();
-	//database->readAllRental();
-	//database->readMotobike();
 	database->close();
 	return 0;
 }

@@ -33,7 +33,7 @@ public:
 	*/
 	int searchNameCategory(const string&);
 	int searchMaCategory(int);
-	void searchCategory();
+	Category* searchCategory();
 	int searchCategoryOfMotobike(const char*); // return postion category
 	/*
 	// Tim kiem ten khach hang, ma khach hang
@@ -83,6 +83,11 @@ public:
 	bool isValidBienSoMotobikeSame(const char*);
 	/*DELETE*/
 	void deleteCustomers();
+	void deleteCategory();
+	void deleteMotobike();
+	void deleteRental();
+	/*SORT*/
+	//voidSortCustomer();
 	void close();
 	~QL_RentalMoto();
 };

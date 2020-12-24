@@ -65,8 +65,7 @@ Category::~Category()
 }
 //=================== NHAP THONG TIN Category Moto =======================
 void Category::scan() {
-	cout << "\t-> Thong tin Category Moto:" << endl;
-	cout << "\tTen Loai Xe: ";
+	cout << "\t\t\tTen Loai Xe: ";
 	cin.getline(this->TenLoaiXe, 50);
 }
 

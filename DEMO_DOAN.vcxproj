@@ -147,6 +147,7 @@
     <ClCompile Include="Date.cpp" />
     <ClCompile Include="Motobike.cpp" />
     <ClCompile Include="QL_RentalMoto.cpp" />
+    <ClCompile Include="QuickSort.cpp" />
     <ClCompile Include="Rental.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
@@ -157,6 +158,10 @@
     <ClInclude Include="Motobike.h" />
     <ClInclude Include="QL_RentalMoto.h" />
     <ClInclude Include="Rental.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DEMO_DOAN.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

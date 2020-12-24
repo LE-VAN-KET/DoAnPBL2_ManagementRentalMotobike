@@ -4,6 +4,7 @@
 #include<string.h>
 #include <string> 
 #include <exception>
+#include "QuickSort.cpp"
 QL_RentalMoto *QL_RentalMoto::instance = nullptr;
 
 QL_RentalMoto* QL_RentalMoto::getInstance()
@@ -32,18 +33,23 @@ void QL_RentalMoto::close() {
 void QL_RentalMoto::selectCategory() {
 	//if there is a problem executing the query then exit application
 	//else display query result
-	SACommand select;
-	select.setConnection(&con);
-	select.setCommandText(_TSA("SELECT * FROM Category"));
-	select.Execute();
-	while (select.FetchNext()) {
-		sa_int64_t  MaLoaiXe = select.Field("MaLoaiXe").asInt64();
-		SAString  TenLoaiXe = select.Field("TenLoaiXe").asString();
-		int Number = select.Field("Number").asLong();
-		Category* typenew = new Category(&string(TenLoaiXe)[0], Number);
-		typenew->setCategoryID(int(MaLoaiXe));
-		typenew->setMaLoaiXe(int(MaLoaiXe));
-		this->TypeMoto.push_back(typenew);
+	try {
+		SACommand select;
+		select.setConnection(&con);
+		select.setCommandText(_TSA("SELECT * FROM Category"));
+		select.Execute();
+		while (select.FetchNext()) {
+			sa_int64_t  MaLoaiXe = select.Field("MaLoaiXe").asInt64();
+			SAString  TenLoaiXe = select.Field("TenLoaiXe").asString();
+			int Number = select.Field("Number").asLong();
+			Category* typenew = new Category(&string(TenLoaiXe)[0], Number);
+			typenew->setCategoryID(int(MaLoaiXe));
+			typenew->setMaLoaiXe(int(MaLoaiXe));
+			this->TypeMoto.push_back(typenew);
+		}
+	}
+	catch (SAException& excep) {
+		cout << excep.ErrText().GetMultiByteChars() << endl;
 	}
 }
 
@@ -53,12 +59,17 @@ QL_RentalMoto::~QL_RentalMoto() {
 void QL_RentalMoto::addCategory() {
 	Category *t = new Category();
 	t->scan();
-	SACommand cmd;
-	cmd.setConnection(&con);
-	cmd.setCommandText(_TSA("INSERT INTO Category VALUES(:TenLoaiXe, :Number)"));
-	cmd.Param(_TSA("Number")).setAsInt64() = 0;
-	cmd.Param(_TSA("TenLoaiXe")).setAsString() = _TSA(t->getTenLoaiXe());
-	cmd.Execute();
+	try {
+		SACommand cmd;
+		cmd.setConnection(&con);
+		cmd.setCommandText(_TSA("INSERT INTO Category VALUES(:TenLoaiXe, :Number)"));
+		cmd.Param(_TSA("Number")).setAsInt64() = 0;
+		cmd.Param(_TSA("TenLoaiXe")).setAsString() = _TSA(t->getTenLoaiXe());
+		cmd.Execute();
+	}
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
+	}
 	t->setCategoryID(t->getCategoryID() + 1);
 	t->setMaLoaiXe(t->getCategoryID());
 	if (TypeMoto.size() == 0) this->selectCategory();
@@ -147,21 +158,26 @@ void QL_RentalMoto::addMotobike() {
 	//	MaCategory = string(MaLoaiXe);
 	//	cout << MaCategory << endl;
 	//}
-	SACommand insert;
-	insert.setConnection(&con);
-	insert.setCommandText(_TSA("INSERT INTO Motobike VALUES(:TenXe, :BienSo, :Color, :MaLoaiXe, :PriceDate, :TinhTrang)"));
-	insert.Param(_TSA("TenXe")).setAsString() = _TSA(moto->getTenXe());
-	insert.Param(_TSA("BienSo")).setAsString() = _TSA(moto->getBienSo());
-	insert.Param(_TSA("Color")).setAsString() = _TSA(moto->getColor());
-	insert.Param(_TSA("MaLoaiXe")).setAsInt64() = this->TypeMoto[pos]->getMaLoaiXe();
-	insert.Param(_TSA("PriceDate")).setAsDouble() = moto->getPriceDate();
-	insert.Param(_TSA("TinhTrang")).setAsBool() = moto->getStatus();
-	insert.Execute();
-	SACommand update;
-	update.setConnection(&con);
-	update.setCommandText(_TSA("UPDATE Category SET Number = Number + 1 WHERE MaLoaiXe = :MaLoaiXe"));
-	update.Param(_TSA("MaLoaiXe")).setAsInt64() = this->TypeMoto[pos]->getMaLoaiXe();
-	update.Execute();
+	try {
+		SACommand insert;
+		insert.setConnection(&con);
+		insert.setCommandText(_TSA("INSERT INTO Motobike VALUES(:TenXe, :BienSo, :Color, :MaLoaiXe, :PriceDate, :TinhTrang)"));
+		insert.Param(_TSA("TenXe")).setAsString() = _TSA(moto->getTenXe());
+		insert.Param(_TSA("BienSo")).setAsString() = _TSA(moto->getBienSo());
+		insert.Param(_TSA("Color")).setAsString() = _TSA(moto->getColor());
+		insert.Param(_TSA("MaLoaiXe")).setAsInt64() = this->TypeMoto[pos]->getMaLoaiXe();
+		insert.Param(_TSA("PriceDate")).setAsDouble() = moto->getPriceDate();
+		insert.Param(_TSA("TinhTrang")).setAsBool() = moto->getStatus();
+		insert.Execute();
+		SACommand update;
+		update.setConnection(&con);
+		update.setCommandText(_TSA("UPDATE Category SET Number = Number + 1 WHERE MaLoaiXe = :MaLoaiXe"));
+		update.Param(_TSA("MaLoaiXe")).setAsInt64() = this->TypeMoto[pos]->getMaLoaiXe();
+		update.Execute();
+	}
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
+	}
 	if (moto->getMotobikeID() == 0) this->selectMotobike();
 	else this->TypeMoto[pos]->addMotobike(moto);
 	moto->setMotobikeID(moto->getMotobikeID() + 1);
@@ -170,23 +186,28 @@ void QL_RentalMoto::addMotobike() {
 }
 
 void QL_RentalMoto::selectMotobike() {
-	SACommand cmd;
-	cmd.setConnection(&con);
-	cmd.setCommandText(_TSA("SELECT * FROM Motobike"));
-	cmd.Execute();
-	while (cmd.FetchNext()) {
-		sa_int64_t  MaXe = cmd.Field("MaXe").asInt64();
-		SAString  TenXe = cmd.Field("TenXe").asString();
-		SAString  BienSo = cmd.Field("BienSo").asString();
-		SAString  Color = cmd.Field("Color").asString();
-		double PriceDate = cmd.Field("PriceDay").asDouble();
-		bool Status = cmd.Field("TinhTrang").asBool();
-		sa_int64_t MaLoaiXe = cmd.Field("MaLoaiXe").asInt64();
-		int pos = this->searchMaCategory(int(MaLoaiXe));
-		Motobike* moto = new Motobike(&string(TenXe)[0], &string(BienSo)[0], &string(Color)[0], PriceDate, Status);
-		moto->setMotobikeID(int(MaXe));
-		moto->setMaXe(int(MaXe));
-		this->TypeMoto[pos]->addMotobike(moto);
+	try {
+		SACommand cmd;
+		cmd.setConnection(&con);
+		cmd.setCommandText(_TSA("SELECT * FROM Motobike"));
+		cmd.Execute();
+		while (cmd.FetchNext()) {
+			sa_int64_t  MaXe = cmd.Field("MaXe").asInt64();
+			SAString  TenXe = cmd.Field("TenXe").asString();
+			SAString  BienSo = cmd.Field("BienSo").asString();
+			SAString  Color = cmd.Field("Color").asString();
+			double PriceDate = cmd.Field("PriceDay").asDouble();
+			bool Status = cmd.Field("TinhTrang").asBool();
+			sa_int64_t MaLoaiXe = cmd.Field("MaLoaiXe").asInt64();
+			int pos = this->searchMaCategory(int(MaLoaiXe));
+			Motobike* moto = new Motobike(&string(TenXe)[0], &string(BienSo)[0], &string(Color)[0], PriceDate, Status);
+			moto->setMotobikeID(int(MaXe));
+			moto->setMaXe(int(MaXe));
+			this->TypeMoto[pos]->addMotobike(moto);
+		}
+	}
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
 	}
 }
 
@@ -205,19 +226,24 @@ void QL_RentalMoto::readMotobike() {
 }
 
 void QL_RentalMoto::insertCustomer(Customers* KhachHang) {
-	SACommand cmd;
-	SADateTime date(KhachHang->getBirthday().getYear(), KhachHang->getBirthday().getMonth(), KhachHang->getBirthday().getDay());
-	cmd.setConnection(&con);
-	cmd.setCommandText(_TSA("INSERT INTO Customers VALUES(:FullName, :Country, :City, :CMND, :SDT, :Email, :Gender, :BirthDay)"));
-	cmd.Param(_TSA("FullName")).setAsString() = _TSA(KhachHang->getFullName());
-	cmd.Param(_TSA("Country")).setAsString() = _TSA(KhachHang->getCountry());
-	cmd.Param(_TSA("City")).setAsString() = _TSA(KhachHang->getCity());
-	cmd.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
-	cmd.Param(_TSA("SDT")).setAsString() = _TSA(KhachHang->getSDT());
-	cmd.Param(_TSA("Email")).setAsString() = _TSA(KhachHang->getEmail());
-	cmd.Param(_TSA("Gender")).setAsBool() = KhachHang->getGender();
-	cmd.Param(_TSA("BirthDay")).setAsDateTime() = date;
-	cmd.Execute();
+	try {
+		SACommand cmd;
+		SADateTime date(KhachHang->getBirthday().getYear(), KhachHang->getBirthday().getMonth(), KhachHang->getBirthday().getDay());
+		cmd.setConnection(&con);
+		cmd.setCommandText(_TSA("INSERT INTO Customers VALUES(:FullName, :Country, :City, :CMND, :SDT, :Email, :Gender, :BirthDay)"));
+		cmd.Param(_TSA("FullName")).setAsString() = _TSA(KhachHang->getFullName());
+		cmd.Param(_TSA("Country")).setAsString() = _TSA(KhachHang->getCountry());
+		cmd.Param(_TSA("City")).setAsString() = _TSA(KhachHang->getCity());
+		cmd.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
+		cmd.Param(_TSA("SDT")).setAsString() = _TSA(KhachHang->getSDT());
+		cmd.Param(_TSA("Email")).setAsString() = _TSA(KhachHang->getEmail());
+		cmd.Param(_TSA("Gender")).setAsBool() = KhachHang->getGender();
+		cmd.Param(_TSA("BirthDay")).setAsDateTime() = date;
+		cmd.Execute();
+	}
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
+	}
 	KhachHang->setCustomerID(KhachHang->getCustomerID() + 1);
 	KhachHang->setMaKH(KhachHang->getCustomerID());
 	if (Customer.size() == 0) this->selectCustomers();
@@ -243,67 +269,87 @@ void QL_RentalMoto::addCustomers() {
 }
 
 void QL_RentalMoto::selectCustomers() {
-	SACommand select;
-	select.setConnection(&con);
-	select.setCommandText(_TSA("SELECT * FROM Customers"));
-	select.Execute();
-	while (select.FetchNext()) {
-		sa_int64_t  MaKH = select.Field("MaKH").asInt64();
-		SAString  FullName = select.Field("FullName").asString();
-		SAString  Country = select.Field("Country").asString();
-		SAString  City = select.Field("City").asString();
-		SAString  CMND = select.Field("CMND").asString();
-		SAString  SDT = select.Field("SDT").asString();
-		SAString  Email = select.Field("Email").asString();
-		bool  Gender = select.Field("Gender").asBool();
-		SADateTime BirthDay = select.Field("BirthDay").asDateTime();
-		Customers* customerNew = new Customers(BirthDay.GetMonth(), BirthDay.GetDay(), BirthDay.GetYear(),
-			&string(FullName)[0], &string(Country)[0], &string(City)[0], &string(CMND)[0],
-			&string(SDT)[0], &string(Email)[0], Gender);
-		/*cout << "Test: " <<  << endl;*/
-		customerNew->setCustomerID(int(MaKH));
-		customerNew->setMaKH(int(MaKH));
-		this->Customer.push_back(customerNew);
+	try {
+		SACommand select;
+		select.setConnection(&con);
+		select.setCommandText(_TSA("SELECT * FROM Customers"));
+		select.Execute();
+		while (select.FetchNext()) {
+			sa_int64_t  MaKH = select.Field("MaKH").asInt64();
+			SAString  FullName = select.Field("FullName").asString();
+			SAString  Country = select.Field("Country").asString();
+			SAString  City = select.Field("City").asString();
+			SAString  CMND = select.Field("CMND").asString();
+			SAString  SDT = select.Field("SDT").asString();
+			SAString  Email = select.Field("Email").asString();
+			bool  Gender = select.Field("Gender").asBool();
+			SADateTime BirthDay = select.Field("BirthDay").asDateTime();
+			Customers* customerNew = new Customers(BirthDay.GetMonth(), BirthDay.GetDay(), BirthDay.GetYear(),
+				&string(FullName)[0], &string(Country)[0], &string(City)[0], &string(CMND)[0],
+				&string(SDT)[0], &string(Email)[0], Gender);
+			/*cout << "Test: " <<  << endl;*/
+			customerNew->setCustomerID(int(MaKH));
+			customerNew->setMaKH(int(MaKH));
+			this->Customer.push_back(customerNew);
+		}
+	}
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
 	}
 }
 
 void QL_RentalMoto::readCustomer() {
+	cout << std::left << setw(10) << "Ma KH" << "| " << setw(10) << "Full Name" << "|  " << setw(10) << "Country"
+		<< "|  " << setw(10) << "City" << "|  " << setw(10) << "CMND" << "|  " << setw(15) << "Email" << "|  " << setw(10) << "Phone"
+		<< "|  " << setw(5) << "Gender" << "|  " << setw(10) << "BirthDay" << endl;
+	cout << "----------+----------+----------------+--------------+----------------+--------------"
+		"-------+----------" << endl;
 	for (unsigned int i = 0; i < Customer.size(); ++i) {
 		cout << *(this->Customer[i]);
 	}
 }
 
 void QL_RentalMoto::insertRental(Rental* rental, int ma_motobike, int pos_customer) {
-	SACommand cmd;
 	SADateTime Rent_date(rental->getRentDay().getYear(), rental->getRentDay().getMonth(), rental->getRentDay().getDay());
 	SADateTime Return_date(rental->getReturnDay().getYear(), rental->getReturnDay().getMonth(), rental->getReturnDay().getDay());
-	cmd.setConnection(&con);
-	cmd.setCommandText(_TSA("INSERT INTO Rental VALUES(:MaXe, :MaKH, :Rent_date, :Return_date, :ThanhTien, :TinhTrang)"));
-	cmd.Param(_TSA("MaXe")).setAsInt64() = ma_motobike;
-	cmd.Param(_TSA("MaKH")).setAsInt64() = this->Customer[pos_customer]->getMaKH();
-	cmd.Param(_TSA("Rent_date")).setAsDateTime() = Rent_date;
-	cmd.Param(_TSA("Return_date")).setAsDateTime() = Return_date;
-	cmd.Param(_TSA("ThanhTien")).setAsDouble() = rental->getThanhTien();
-	cmd.Param(_TSA("TinhTrang")).setAsBool() = rental->getStatus();
-	cmd.Execute();
-	SACommand update;
-	update.setConnection(&con);
-	update.setCommandText(_TSA("UPDATE Motobike SET TinhTrang = :TinhTrang WHERE MaXe = :MaXe"));
-	update.Param(_TSA("MaXe")).setAsInt64() = ma_motobike;
-	update.Param(_TSA("TinhTrang")).setAsBool() = true;
-	update.Execute();
+	try {
+		SACommand cmd;
+		cmd.setConnection(&con);
+		cmd.setCommandText(_TSA("INSERT INTO Rental VALUES(:MaXe, :MaKH, :Rent_date, :Return_date, :ThanhTien, :TinhTrang)"));
+		cmd.Param(_TSA("MaXe")).setAsInt64() = ma_motobike;
+		cmd.Param(_TSA("MaKH")).setAsInt64() = this->Customer[pos_customer]->getMaKH();
+		cmd.Param(_TSA("Rent_date")).setAsDateTime() = Rent_date;
+		cmd.Param(_TSA("Return_date")).setAsDateTime() = Return_date;
+		cmd.Param(_TSA("ThanhTien")).setAsDouble() = rental->getThanhTien();
+		cmd.Param(_TSA("TinhTrang")).setAsBool() = rental->getStatus();
+		cmd.Execute();
+		SACommand update;
+		update.setConnection(&con);
+		update.setCommandText(_TSA("UPDATE Motobike SET TinhTrang = :TinhTrang WHERE MaXe = :MaXe"));
+		update.Param(_TSA("MaXe")).setAsInt64() = ma_motobike;
+		update.Param(_TSA("TinhTrang")).setAsBool() = true;
+		update.Execute();
+	}
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
+	}
 	if (rental->getRentalID() == 0) this->selectRental();
 	else {
-		SACommand select;
-		select.setConnection(&con);
-		select.setCommandText(_TSA(("SELECT ThanhTien FROM Rental WHERE MaKH = :MaKH AND Rent_date = :Rent_date AND MaXe = :MaXe")));
-		select.Param(_TSA("MaKH")).setAsInt64() = this->Customer[pos_customer]->getMaKH();
-		select.Param(_TSA("Rent_date")).setAsDateTime() = Rent_date;
-		select.Param(_TSA("MaXe")).setAsInt64() = ma_motobike;
-		select.Execute();
-		while (select.FetchNext()) {
-			double ThanhTien = select.Field("ThanhTien").asDouble();
-			rental->setThanhTien(ThanhTien);
+		try {
+			SACommand select;
+			select.setConnection(&con);
+			select.setCommandText(_TSA(("SELECT ThanhTien FROM Rental WHERE MaKH = :MaKH AND Rent_date = :Rent_date AND MaXe = :MaXe")));
+			select.Param(_TSA("MaKH")).setAsInt64() = this->Customer[pos_customer]->getMaKH();
+			select.Param(_TSA("Rent_date")).setAsDateTime() = Rent_date;
+			select.Param(_TSA("MaXe")).setAsInt64() = ma_motobike;
+			select.Execute();
+			while (select.FetchNext()) {
+				double ThanhTien = select.Field("ThanhTien").asDouble();
+				rental->setThanhTien(ThanhTien);
+			}
+		}
+		catch (SAException& e) {
+			cout << e.ErrText().GetMultiByteChars() << endl;
 		}
 		rental->setRentalID(rental->getRentalID() + 1);
 		rental->setMaRental(rental->getRentalID());
@@ -347,31 +393,36 @@ void QL_RentalMoto::addRental() {
 }
 
 void QL_RentalMoto::selectRental() {
-	SACommand select;
-	select.setConnection(&con);
-	select.setCommandText(_TSA("SELECT * FROM Rental"));
-	select.Execute();
-	while (select.FetchNext()) {
-		sa_int64_t MaRental = select.Field("MaRental").asInt64();
-		sa_int64_t MaXe = select.Field("MaXe").asInt64();
-		sa_int64_t MaKH = select.Field("MaKH").asInt64();
-		SADateTime Rent_date = select.Field("Rent_date").asDateTime();
-		SADateTime Return_date = select.Field("Return_date").asDateTime();
-		double ThanhTien = select.Field("ThanhTien").asDouble();
-		bool Status = select.Field("TinhTrang").asBool();
-		Rental* rentalNew = new Rental(Rent_date.GetDay(), Rent_date.GetMonth(), Rent_date.GetYear(),
-			Return_date.GetDay(), Return_date.GetMonth(), Return_date.GetYear(), ThanhTien, Status);
-		int pos_customer = this->searchMaCustomer(int(MaKH));
-		rentalNew->setRentalID(int(MaRental));
-		rentalNew->setMaRental(int(MaRental));
-		this->Customer[pos_customer]->addRental(rentalNew);
-		for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
-			for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
-				if (TypeMoto[i]->getListMoto()[j]->getMaXe() == int(MaXe)) {
-					this->TypeMoto[i]->getListMoto()[j]->addRental(rentalNew);
+	try {
+		SACommand select;
+		select.setConnection(&con);
+		select.setCommandText(_TSA("SELECT * FROM Rental"));
+		select.Execute();
+		while (select.FetchNext()) {
+			sa_int64_t MaRental = select.Field("MaRental").asInt64();
+			sa_int64_t MaXe = select.Field("MaXe").asInt64();
+			sa_int64_t MaKH = select.Field("MaKH").asInt64();
+			SADateTime Rent_date = select.Field("Rent_date").asDateTime();
+			SADateTime Return_date = select.Field("Return_date").asDateTime();
+			double ThanhTien = select.Field("ThanhTien").asDouble();
+			bool Status = select.Field("TinhTrang").asBool();
+			Rental* rentalNew = new Rental(Rent_date.GetDay(), Rent_date.GetMonth(), Rent_date.GetYear(),
+				Return_date.GetDay(), Return_date.GetMonth(), Return_date.GetYear(), ThanhTien, Status);
+			int pos_customer = this->searchMaCustomer(int(MaKH));
+			rentalNew->setRentalID(int(MaRental));
+			rentalNew->setMaRental(int(MaRental));
+			this->Customer[pos_customer]->addRental(rentalNew);
+			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
+				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
+					if (TypeMoto[i]->getListMoto()[j]->getMaXe() == int(MaXe)) {
+						this->TypeMoto[i]->getListMoto()[j]->addRental(rentalNew);
+					}
 				}
 			}
 		}
+	}
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
 	}
 }
 
@@ -420,6 +471,7 @@ Motobike* QL_RentalMoto::searchMotobike(const string& method) {
 			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
 				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
 					if (TypeMoto[i]->getListMoto()[j]->getMaXe() == maMotobike) {
+						(TypeMoto[i]->getListMoto()[j])->read();
 						return (TypeMoto[i]->getListMoto()[j]);
 					}
 				}
@@ -436,6 +488,7 @@ Motobike* QL_RentalMoto::searchMotobike(const string& method) {
 			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
 				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
 					if (string(TypeMoto[i]->getListMoto()[j]->getTenXe()) == TenXe) {
+						TypeMoto[i]->getListMoto()[j]->read();
 						return TypeMoto[i]->getListMoto()[j];
 					}
 				}
@@ -608,12 +661,17 @@ void QL_RentalMoto::updateCategoryMotobike() {
 					cout << "\t" << exception.what() << endl;
 				}
 			} while (!flasg);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Category SET TenLoaiXe = :TenLoaiXeNew WHERE TenLoaiXe = :TenLoaiXeOld"));
-			update.Param(_TSA("TenLoaiXeNew")).setAsString() = _TSA(&TenLoaiXeNew[0]);
-			update.Param(_TSA("TenLoaiXeOld")).setAsString() = _TSA(&TenLoaiXeOld[0]);
-			update.Execute();
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Category SET TenLoaiXe = :TenLoaiXeNew WHERE TenLoaiXe = :TenLoaiXeOld"));
+				update.Param(_TSA("TenLoaiXeNew")).setAsString() = _TSA(&TenLoaiXeNew[0]);
+				update.Param(_TSA("TenLoaiXeOld")).setAsString() = _TSA(&TenLoaiXeOld[0]);
+				update.Execute();
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			check = true;
 			break;
 		}
@@ -648,14 +706,19 @@ void QL_RentalMoto::updateMotobike() {
 			string TenXe;
 			cout << "\tNew Ten Xe: ";
 			getline(cin, TenXe);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Motobike SET TenXe = :TenXeNew WHERE TenXe = :TenXeOld AND MaXe = :MaXe"));
-			update.Param(_TSA("TenXeOld")).setAsString() = _TSA(moto->getTenXe());
-			update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
-			update.Param(_TSA("TenXeNew")).setAsString() = _TSA(&TenXe[0]);
-			update.Execute();
-			moto->setTenXe(&TenXe[0]);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Motobike SET TenXe = :TenXeNew WHERE TenXe = :TenXeOld AND MaXe = :MaXe"));
+				update.Param(_TSA("TenXeOld")).setAsString() = _TSA(moto->getTenXe());
+				update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+				update.Param(_TSA("TenXeNew")).setAsString() = _TSA(&TenXe[0]);
+				update.Execute();
+				moto->setTenXe(&TenXe[0]);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			//check = true;
 			break;
 		}
@@ -664,14 +727,19 @@ void QL_RentalMoto::updateMotobike() {
 			string BienSo;
 			cout << "\tNew Bien So: ";
 			getline(cin, BienSo);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Motobike SET BienSo = :BienSoNew WHERE BienSo = :BienSoOld AND MaXe = :MaXe"));
-			update.Param(_TSA("BienSoNew")).setAsString() = _TSA(&BienSo[0]);
-			update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
-			update.Param(_TSA("BienSoOld")).setAsString() = _TSA(moto->getBienSo());
-			update.Execute();
-			moto->setBienSo(&BienSo[0]);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Motobike SET BienSo = :BienSoNew WHERE BienSo = :BienSoOld AND MaXe = :MaXe"));
+				update.Param(_TSA("BienSoNew")).setAsString() = _TSA(&BienSo[0]);
+				update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+				update.Param(_TSA("BienSoOld")).setAsString() = _TSA(moto->getBienSo());
+				update.Execute();
+				moto->setBienSo(&BienSo[0]);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			//check = true;
 			break;
 		}
@@ -680,14 +748,19 @@ void QL_RentalMoto::updateMotobike() {
 			string Color;
 			cout << "\tNew Color: ";
 			getline(cin, Color);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Motobike SET Color = :ColorNew WHERE Color = :ColorOld AND MaXe = :MaXe"));
-			update.Param(_TSA("ColorNew")).setAsString() = _TSA(&Color[0]);
-			update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
-			update.Param(_TSA("ColorOld")).setAsString() = _TSA(moto->getColor());
-			update.Execute();
-			moto->setColor(&Color[0]);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Motobike SET Color = :ColorNew WHERE Color = :ColorOld AND MaXe = :MaXe"));
+				update.Param(_TSA("ColorNew")).setAsString() = _TSA(&Color[0]);
+				update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+				update.Param(_TSA("ColorOld")).setAsString() = _TSA(moto->getColor());
+				update.Execute();
+				moto->setColor(&Color[0]);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			//check = true;
 			break;
 		}
@@ -697,14 +770,19 @@ void QL_RentalMoto::updateMotobike() {
 			cout << "\tNew Price/Date: ";
 			cin >> PriceRent;
 			cin.ignore();
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Motobike SET PriceDay = :PriceDateNew WHERE PriceDay = :PriceDateOld AND MaXe = :MaXe"));
-			update.Param(_TSA("PriceDateNew")).setAsDouble() = PriceRent;
-			update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
-			update.Param(_TSA("PriceDateOld")).setAsDouble() = moto->getPriceDate();
-			update.Execute();
-			moto->setPriceDate(PriceRent);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Motobike SET PriceDay = :PriceDateNew WHERE PriceDay = :PriceDateOld AND MaXe = :MaXe"));
+				update.Param(_TSA("PriceDateNew")).setAsDouble() = PriceRent;
+				update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+				update.Param(_TSA("PriceDateOld")).setAsDouble() = moto->getPriceDate();
+				update.Execute();
+				moto->setPriceDate(PriceRent);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			//check = true;
 			break;
 		}
@@ -714,14 +792,19 @@ void QL_RentalMoto::updateMotobike() {
 			cout << "\tNew Status: ";
 			cin >> StastusNew;
 			cin.ignore();
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Motobike SET TinhTrang = :StatusNew WHERE TinhTrang = :StatusOld AND MaXe = :MaXe"));
-			update.Param(_TSA("StatusNew")).setAsBool() = StastusNew;
-			update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
-			update.Param(_TSA("StatusOld")).setAsBool() = moto->getStatus();
-			update.Execute();
-			moto->setStatus(StastusNew);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Motobike SET TinhTrang = :StatusNew WHERE TinhTrang = :StatusOld AND MaXe = :MaXe"));
+				update.Param(_TSA("StatusNew")).setAsBool() = StastusNew;
+				update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+				update.Param(_TSA("StatusOld")).setAsBool() = moto->getStatus();
+				update.Execute();
+				moto->setStatus(StastusNew);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			//check = true;
 			break;
 		}
@@ -742,33 +825,38 @@ void QL_RentalMoto::updateMotobike() {
 					cout << "\t" << exception.what() << endl;
 				}
 			} while (!success);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Motobike SET MaLoaiXe = :MaLoaiXeNew WHERE MaXe = :MaXe"));
-			update.Param(_TSA("MaLoaiXeNew")).setAsInt64() = TypeMoto[pos_Category]->getMaLoaiXe();
-			update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
-			update.Execute();
-			SACommand updateCategory;
-			updateCategory.setConnection(&con);
-			updateCategory.setCommandText(_TSA("UPDATE Category SET Number = Number + 1 WHERE MaLoaiXe = :MaLoaiXeNew"));
-			updateCategory.Param(_TSA("MaLoaiXeNew")).setAsInt64() = TypeMoto[pos_Category]->getMaLoaiXe();
-			updateCategory.Execute();
-			int pos_category = this->searchCategoryOfMotobike(moto->getTenXe());
-			SACommand updateCategoryOld;
-			updateCategoryOld.setConnection(&con);
-			updateCategoryOld.setCommandText(_TSA("UPDATE Category SET Number = Number - 1 WHERE MaLoaiXe = :MaLoaiXeOld"));
-			updateCategoryOld.Param(_TSA("MaLoaiXeOld")).setAsInt64() = TypeMoto[pos_category]->getMaLoaiXe();
-			updateCategoryOld.Execute();
-			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
-				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
-					if (TypeMoto[i]->getListMoto()[j]->getMaXe() == moto->getMaXe()) {
-						TypeMoto[i]->removeMoto(j);
-						TypeMoto[i]->setNumber(TypeMoto[i]->getNumber() - 1);
-						TypeMoto[pos_Category]->addMotobike(moto);
-						TypeMoto[pos_Category]->setNumber(TypeMoto[pos_Category]->getNumber() + 1);
-						return;
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Motobike SET MaLoaiXe = :MaLoaiXeNew WHERE MaXe = :MaXe"));
+				update.Param(_TSA("MaLoaiXeNew")).setAsInt64() = TypeMoto[pos_Category]->getMaLoaiXe();
+				update.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+				update.Execute();
+				SACommand updateCategory;
+				updateCategory.setConnection(&con);
+				updateCategory.setCommandText(_TSA("UPDATE Category SET Number = Number + 1 WHERE MaLoaiXe = :MaLoaiXeNew"));
+				updateCategory.Param(_TSA("MaLoaiXeNew")).setAsInt64() = TypeMoto[pos_Category]->getMaLoaiXe();
+				updateCategory.Execute();
+				int pos_category = this->searchCategoryOfMotobike(moto->getTenXe());
+				SACommand updateCategoryOld;
+				updateCategoryOld.setConnection(&con);
+				updateCategoryOld.setCommandText(_TSA("UPDATE Category SET Number = Number - 1 WHERE MaLoaiXe = :MaLoaiXeOld"));
+				updateCategoryOld.Param(_TSA("MaLoaiXeOld")).setAsInt64() = TypeMoto[pos_category]->getMaLoaiXe();
+				updateCategoryOld.Execute();
+				for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
+					for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
+						if (TypeMoto[i]->getListMoto()[j]->getMaXe() == moto->getMaXe()) {
+							TypeMoto[i]->removeMoto(j);
+							TypeMoto[i]->setNumber(TypeMoto[i]->getNumber() - 1);
+							TypeMoto[pos_Category]->addMotobike(moto);
+							TypeMoto[pos_Category]->setNumber(TypeMoto[pos_Category]->getNumber() + 1);
+							return;
+						}
 					}
 				}
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
 			}
 			break;
 		}
@@ -1019,14 +1107,19 @@ void QL_RentalMoto::updateCustomer() {
 			string nameKH;
 			cout << "\tNew Name Khach Hang: ";
 			getline(cin, nameKH);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Customers SET FullName = :NameKHNew WHERE FullName = :NameKHOld AND CMND = :CMND"));
-			update.Param(_TSA("NameKHOld")).setAsString() = _TSA(KhachHang->getFullName());
-			update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
-			update.Param(_TSA("NameKHNew")).setAsString() = _TSA(&nameKH[0]);
-			update.Execute();
-			KhachHang->setFullName(&nameKH[0]);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Customers SET FullName = :NameKHNew WHERE FullName = :NameKHOld AND CMND = :CMND"));
+				update.Param(_TSA("NameKHOld")).setAsString() = _TSA(KhachHang->getFullName());
+				update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
+				update.Param(_TSA("NameKHNew")).setAsString() = _TSA(&nameKH[0]);
+				update.Execute();
+				KhachHang->setFullName(&nameKH[0]);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			break;
 		}
 		case 2:
@@ -1034,14 +1127,19 @@ void QL_RentalMoto::updateCustomer() {
 			string Country;
 			cout << "\tNew Country Khach Hang: ";
 			getline(cin, Country);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Customers SET Country = :CountryNew WHERE Country = :CountryOld AND CMND = :CMND"));
-			update.Param(_TSA("CountryOld")).setAsString() = _TSA(KhachHang->getCountry());
-			update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
-			update.Param(_TSA("CountryNew")).setAsString() = _TSA(&Country[0]);
-			update.Execute();
-			KhachHang->setCountry(&Country[0]);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Customers SET Country = :CountryNew WHERE Country = :CountryOld AND CMND = :CMND"));
+				update.Param(_TSA("CountryOld")).setAsString() = _TSA(KhachHang->getCountry());
+				update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
+				update.Param(_TSA("CountryNew")).setAsString() = _TSA(&Country[0]);
+				update.Execute();
+				KhachHang->setCountry(&Country[0]);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			break;
 		}
 		case 3:
@@ -1049,14 +1147,19 @@ void QL_RentalMoto::updateCustomer() {
 			string City;
 			cout << "\tNew City Khach Hang: ";
 			getline(cin, City);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Customers SET City = :CityNew WHERE City = :CityOld AND CMND = :CMND"));
-			update.Param(_TSA("CityOld")).setAsString() = _TSA(KhachHang->getCity());
-			update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
-			update.Param(_TSA("CityNew")).setAsString() = _TSA(&City[0]);
-			update.Execute();
-			KhachHang->setCity(&City[0]);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Customers SET City = :CityNew WHERE City = :CityOld AND CMND = :CMND"));
+				update.Param(_TSA("CityOld")).setAsString() = _TSA(KhachHang->getCity());
+				update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
+				update.Param(_TSA("CityNew")).setAsString() = _TSA(&City[0]);
+				update.Execute();
+				KhachHang->setCity(&City[0]);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			break;
 		}
 		case 4:
@@ -1073,13 +1176,18 @@ void QL_RentalMoto::updateCustomer() {
 					cout << "\t" << exception.what() << endl;
 				}
 			} while (!check);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Customers SET CMND = :CMNDNew WHERE CMND = :CMNDOld"));
-			update.Param(_TSA("CMNDOld")).setAsString() = _TSA(KhachHang->getCMND());
-			update.Param(_TSA("CMNDNew")).setAsString() = _TSA(&CMND[0]);
-			update.Execute();
-			KhachHang->setCMND(&CMND[0]);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Customers SET CMND = :CMNDNew WHERE CMND = :CMNDOld"));
+				update.Param(_TSA("CMNDOld")).setAsString() = _TSA(KhachHang->getCMND());
+				update.Param(_TSA("CMNDNew")).setAsString() = _TSA(&CMND[0]);
+				update.Execute();
+				KhachHang->setCMND(&CMND[0]);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			break;
 		}
 		case 5:
@@ -1096,14 +1204,19 @@ void QL_RentalMoto::updateCustomer() {
 					cout << "\t" << exception.what() << endl;
 				}
 			} while (!check);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Customers SET SDT = :SDTNew WHERE SDT = :SDTOld AND CMND = :CMND"));
-			update.Param(_TSA("SDTOld")).setAsString() = _TSA(KhachHang->getSDT());
-			update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
-			update.Param(_TSA("SDTNew")).setAsString() = _TSA(&SDT[0]);
-			update.Execute();
-			KhachHang->setSDT(&SDT[0]);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Customers SET SDT = :SDTNew WHERE SDT = :SDTOld AND CMND = :CMND"));
+				update.Param(_TSA("SDTOld")).setAsString() = _TSA(KhachHang->getSDT());
+				update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
+				update.Param(_TSA("SDTNew")).setAsString() = _TSA(&SDT[0]);
+				update.Execute();
+				KhachHang->setSDT(&SDT[0]);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			break;
 		}
 		case 6:
@@ -1120,14 +1233,19 @@ void QL_RentalMoto::updateCustomer() {
 					cout << "\t" << exception.what() << endl;
 				}
 			} while (!check);
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Customers SET Email = :EmailNew WHERE Email = :EmailOld AND CMND = :CMND"));
-			update.Param(_TSA("EmailOld")).setAsString() = _TSA(KhachHang->getEmail());
-			update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
-			update.Param(_TSA("EmailNew")).setAsString() = _TSA(&Email[0]);
-			update.Execute();
-			KhachHang->setEmail(&Email[0]);
+			try {
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Customers SET Email = :EmailNew WHERE Email = :EmailOld AND CMND = :CMND"));
+				update.Param(_TSA("EmailOld")).setAsString() = _TSA(KhachHang->getEmail());
+				update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
+				update.Param(_TSA("EmailNew")).setAsString() = _TSA(&Email[0]);
+				update.Execute();
+				KhachHang->setEmail(&Email[0]);
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			break;
 		}
 		case 7:
@@ -1144,16 +1262,21 @@ void QL_RentalMoto::updateCustomer() {
 					cout << "\t" << exception.what() << endl;
 				}
 			} while (!check);
-			SADateTime dateOld(KhachHang->getBirthday().getYear(), KhachHang->getBirthday().getMonth(), KhachHang->getBirthday().getDay());
-			SADateTime dateNew(BirthDay.getYear(), BirthDay.getMonth(), BirthDay.getDay());
-			SACommand update;
-			update.setConnection(&con);
-			update.setCommandText(_TSA("UPDATE Customers SET BirthDay = :BirthDayNew WHERE BirthDay = :BirthDayOld AND CMND = :CMND"));
-			update.Param(_TSA("BirthDayNew")).setAsDateTime() = dateNew;
-			update.Param(_TSA("BirthDayOld")).setAsDateTime() = dateOld;
-			update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
-			update.Execute();
-			KhachHang->setBirthday(BirthDay.getDay(), BirthDay.getMonth(), BirthDay.getYear());
+			try {
+				SADateTime dateOld(KhachHang->getBirthday().getYear(), KhachHang->getBirthday().getMonth(), KhachHang->getBirthday().getDay());
+				SADateTime dateNew(BirthDay.getYear(), BirthDay.getMonth(), BirthDay.getDay());
+				SACommand update;
+				update.setConnection(&con);
+				update.setCommandText(_TSA("UPDATE Customers SET BirthDay = :BirthDayNew WHERE BirthDay = :BirthDayOld AND CMND = :CMND"));
+				update.Param(_TSA("BirthDayNew")).setAsDateTime() = dateNew;
+				update.Param(_TSA("BirthDayOld")).setAsDateTime() = dateOld;
+				update.Param(_TSA("CMND")).setAsString() = _TSA(KhachHang->getCMND());
+				update.Execute();
+				KhachHang->setBirthday(BirthDay.getDay(), BirthDay.getMonth(), BirthDay.getYear());
+			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			break;
 		}
 		case 0:
@@ -1433,6 +1556,9 @@ void QL_RentalMoto::updateRental() {
 			catch (invalid_argument& exception) {
 				cout << "\t" << exception.what() << endl;
 			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			//int MaKH = -1;
 			//bool kt = false;
 			//for (unsigned int i = 0; i < Customer.size(), kt = false; ++i) {
@@ -1488,6 +1614,9 @@ void QL_RentalMoto::updateRental() {
 			catch (invalid_argument& exception) {
 				cout << "\t" << exception.what() << endl;
 			}
+			catch (SAException& e) {
+				cout << e.ErrText().GetMultiByteChars() << endl;
+			}
 			break;
 		}
 		case 3: case 4: case 5:
@@ -1500,25 +1629,35 @@ void QL_RentalMoto::updateRental() {
 				cout << "\tUpdate Ngay Thue";
 				date_new.scan();
 				SADateTime date_Rent(date_new.getYear(), date_new.getMonth(), date_new.getDay());
-				SACommand updateRent;
-				updateRent.setConnection(&con);
-				updateRent.setCommandText(_TSA("UPDATE Rental SET Rent_date = :Rent_dateNew WHERE MaRental = :MaRental"));
-				updateRent.Param(_TSA("MaRental")).setAsInt64() = rentalmoto->getMaRental();
-				updateRent.Param(_TSA("Rent_dateNew")).setAsDateTime() = date_Rent;
-				updateRent.Execute();
+				try {
+					SACommand updateRent;
+					updateRent.setConnection(&con);
+					updateRent.setCommandText(_TSA("UPDATE Rental SET Rent_date = :Rent_dateNew WHERE MaRental = :MaRental"));
+					updateRent.Param(_TSA("MaRental")).setAsInt64() = rentalmoto->getMaRental();
+					updateRent.Param(_TSA("Rent_dateNew")).setAsDateTime() = date_Rent;
+					updateRent.Execute();
+				}
+				catch (SAException& e) {
+					cout << e.ErrText().GetMultiByteChars() << endl;
+				}
 				break;
 			}
 			case 4:
 			{
 				cout << "\tUpdate Ngay Tra";
 				date_new.scan();
-				SADateTime dateNew(date_new.getYear(), date_new.getMonth(), date_new.getDay());
-				SACommand updateReturn;
-				updateReturn.setConnection(&con);
-				updateReturn.setCommandText(_TSA("UPDATE Rental SET Return_date = :Return_dateNew WHERE MaRental = :MaRental"));
-				updateReturn.Param(_TSA("MaRental")).setAsInt64() = rentalmoto->getMaRental();
-				updateReturn.Param(_TSA("Return_dateNew")).setAsDateTime() = dateNew;
-				updateReturn.Execute();
+				try {
+					SADateTime dateNew(date_new.getYear(), date_new.getMonth(), date_new.getDay());
+					SACommand updateReturn;
+					updateReturn.setConnection(&con);
+					updateReturn.setCommandText(_TSA("UPDATE Rental SET Return_date = :Return_dateNew WHERE MaRental = :MaRental"));
+					updateReturn.Param(_TSA("MaRental")).setAsInt64() = rentalmoto->getMaRental();
+					updateReturn.Param(_TSA("Return_dateNew")).setAsDateTime() = dateNew;
+					updateReturn.Execute();
+				}
+				catch (SAException& e) {
+					cout << e.ErrText().GetMultiByteChars() << endl;
+				}
 				break;
 			}
 			case 5:
@@ -1537,12 +1676,17 @@ void QL_RentalMoto::updateRental() {
 						cout << "\t" << exception.what() << endl;
 					}
 				} while (!flash);
-				SACommand update;
-				update.setConnection(&con);
-				update.setCommandText(_TSA("UPDATE Rental SET TinhTrang = :TinhTrang WHERE MaRental = :MaRental"));
-				update.Param(_TSA("MaRental")).setAsInt64() = rentalmoto->getMaRental();
-				update.Param(_TSA("TinhTrang")).setAsBool() = status;
-				update.Execute();
+				try {
+					SACommand update;
+					update.setConnection(&con);
+					update.setCommandText(_TSA("UPDATE Rental SET TinhTrang = :TinhTrang WHERE MaRental = :MaRental"));
+					update.Param(_TSA("MaRental")).setAsInt64() = rentalmoto->getMaRental();
+					update.Param(_TSA("TinhTrang")).setAsBool() = status;
+					update.Execute();
+				}
+				catch (SAException& e) {
+					cout << e.ErrText().GetMultiByteChars() << endl;
+				}
 				break;
 			}
 			}
@@ -1662,21 +1806,26 @@ void QL_RentalMoto::ReturnMotobike() {
 	}
 	SADateTime Return_Date(ReturnDay.getYear(), ReturnDay.getMonth(), ReturnDay.getDay());
 	SADateTime Rent_Date(RentDay.getYear(), RentDay.getMonth(), RentDay.getDay());
-	SACommand update;
-	update.setConnection(&con);
-	update.setCommandText(_TSA("UPDATE Rental SET Return_date = :Return_date, TinhTrang = :TinhTrang WHERE MaKH = :MaKH AND MaXe = :MaXe AND Rent_date = :Rent_date"));
-	update.Param(_TSA("Return_date")).setAsDateTime() = Return_Date;
-	update.Param(_TSA("TinhTrang")).setAsBool() = true;
-	update.Param(_TSA("Rent_date")).setAsDateTime() = Rent_Date;
-	update.Param(_TSA("MaKH")).setAsInt64() = Customer[pos_customer]->getMaKH();
-	update.Param(_TSA("MaXe")).setAsInt64() = maMotobike;
-	update.Execute();
-	SACommand cmd;
-	cmd.setConnection(&con);
-	cmd.setCommandText(_TSA("UPDATE Motobike SET TinhTrang = :TinhTrang WHERE MaXe = :MaXe"));
-	cmd.Param(_TSA("MaXe")).setAsInt64() = maMotobike;
-	cmd.Param(_TSA("TinhTrang")).setAsBool() = false;
-	cmd.Execute();
+	try {
+		SACommand update;
+		update.setConnection(&con);
+		update.setCommandText(_TSA("UPDATE Rental SET Return_date = :Return_date, TinhTrang = :TinhTrang WHERE MaKH = :MaKH AND MaXe = :MaXe AND Rent_date = :Rent_date"));
+		update.Param(_TSA("Return_date")).setAsDateTime() = Return_Date;
+		update.Param(_TSA("TinhTrang")).setAsBool() = true;
+		update.Param(_TSA("Rent_date")).setAsDateTime() = Rent_Date;
+		update.Param(_TSA("MaKH")).setAsInt64() = Customer[pos_customer]->getMaKH();
+		update.Param(_TSA("MaXe")).setAsInt64() = maMotobike;
+		update.Execute();
+		SACommand cmd;
+		cmd.setConnection(&con);
+		cmd.setCommandText(_TSA("UPDATE Motobike SET TinhTrang = :TinhTrang WHERE MaXe = :MaXe"));
+		cmd.Param(_TSA("MaXe")).setAsInt64() = maMotobike;
+		cmd.Param(_TSA("TinhTrang")).setAsBool() = false;
+		cmd.Execute();
+	}
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
+	}
 }
 
 bool QL_RentalMoto::isValidEmailSame(const char* email) { // check same email
@@ -1795,139 +1944,269 @@ int QL_RentalMoto::searchCategoryOfMotobike(const char* TenXe) {
 void QL_RentalMoto::deleteCustomers() {
 	Customers* KhachHang = this->searchCustomer("delete");
 	if (KhachHang == NULL) return;
-	SACommand select;
-	select.setConnection(&con);
-	select.setCommandText(_TSA("SELECT Rental.MaRental, Rental.MaXe, Motobike.MaLoaiXe FROM Rental INNER JOIN Motobike ON Rental.MaXe = Motobike.MaXe WHERE Rental.MaKH = :MaKH"));
-	select.Param(_TSA("MaKH")).setAsInt64() = KhachHang->getMaKH();
-	select.Execute();
-	while (select.FetchNext()) {
-		sa_int64_t MaRental = select.Field("MaRental").asInt64();
-		sa_int64_t MaXe = select.Field("MaXe").asInt64();
-		sa_int64_t MaLoaiXe = select.Field("MaLoaiXe").asInt64();
-		int pos_category = this->searchMaCategory((int)MaLoaiXe);
-		for (unsigned int j = 0; j < TypeMoto[pos_category]->getListMoto().size(); ++j) {
-			if (TypeMoto[pos_category]->getListMoto()[j]->getMaXe() == (int)MaXe) {
-				for (unsigned int k = 0; k < TypeMoto[pos_category]->getListMoto()[j]->getListRental().size(); ++k) {
-					if (TypeMoto[pos_category]->getListMoto()[j]->getListRental()[k]->getMaRental() == MaRental) {
-						//TypeMoto[pos_category]->getListMoto()[j]->getListRental()[k]->read();
-						TypeMoto[pos_category]->getListMoto()[j]->removeRental(k);
+	try {
+		SACommand select;
+		select.setConnection(&con);
+		select.setCommandText(_TSA("SELECT Rental.MaRental, Rental.MaXe, Motobike.MaLoaiXe FROM Rental INNER JOIN Motobike ON Rental.MaXe = Motobike.MaXe WHERE Rental.MaKH = :MaKH"));
+		select.Param(_TSA("MaKH")).setAsInt64() = KhachHang->getMaKH();
+		select.Execute();
+		while (select.FetchNext()) {
+			sa_int64_t MaRental = select.Field("MaRental").asInt64();
+			sa_int64_t MaXe = select.Field("MaXe").asInt64();
+			sa_int64_t MaLoaiXe = select.Field("MaLoaiXe").asInt64();
+			int pos_category = this->searchMaCategory((int)MaLoaiXe);
+			for (unsigned int j = 0; j < TypeMoto[pos_category]->getListMoto().size(); ++j) {
+				if (TypeMoto[pos_category]->getListMoto()[j]->getMaXe() == (int)MaXe) {
+					for (unsigned int k = 0; k < TypeMoto[pos_category]->getListMoto()[j]->getListRental().size(); ++k) {
+						if (TypeMoto[pos_category]->getListMoto()[j]->getListRental()[k]->getMaRental() == MaRental) {
+							//TypeMoto[pos_category]->getListMoto()[j]->getListRental()[k]->read();
+							TypeMoto[pos_category]->getListMoto()[j]->removeRental(k);
+						}
 					}
 				}
 			}
 		}
+		SACommand Del;
+		Del.setConnection(&con);
+		Del.setCommandText(_TSA("DELETE FROM Customers WHERE MaKH = :MaKH"));
+		Del.Param(_TSA("MaKH")).setAsInt64() = KhachHang->getMaKH();
+		Del.Execute();
+		int pos_customer = this->searchMaCustomer(KhachHang->getMaKH());
+		delete Customer[pos_customer];
+		for (unsigned int i = pos_customer; i < Customer.size() - 1; ++i) {
+			Customer[i] = Customer[i + 1];
+		}
+		Customer.resize(Customer.size() - 1);
 	}
-	SACommand Del;
-	Del.setConnection(&con);
-	Del.setCommandText(_TSA("DELETE FROM Customers WHERE MaKH = :MaKH"));
-	Del.Param(_TSA("MaKH")).setAsInt64() = KhachHang->getMaKH();
-	Del.Execute();
-	int pos_customer = this->searchMaCustomer(KhachHang->getMaKH());
-	delete Customer[pos_customer];
-	for (unsigned int i = pos_customer; i < Customer.size() - 1; ++i) {
-		Customer[i] = Customer[i + 1];
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
 	}
-	Customer.resize(Customer.size() - 1);
 }
 
 void QL_RentalMoto::deleteCategory() {
 	Category* type = this->searchCategory();
 	if (type == NULL) return;
-	SACommand select;
-	select.setConnection(&con);
-	select.setCommandText(_TSA("SELECT Rental.MaRental, Rental.MaKH FROM Category INNER JOIN Motobike ON Category.MaLoaiXe = Motobike.MaLoaiXe INNER JOIN Rental ON Motobike.MaXe = Rental.MaXe WHERE Category.MaLoaiXe = :MaLoaiXe"));
-	select.Param(_TSA("MaLoaiXe")).setAsInt64() = type->getMaLoaiXe();
-	select.Execute();
-	while (select.FetchNext()) {
-		sa_int64_t MaRental = select.Field("MaRental").asInt64();
-		sa_int64_t MaKH = select.Field("MaKH").asInt64();
-		int pos_customer = this->searchMaCustomer((int)MaKH);
-		for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
-			if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
-				Customer[pos_customer]->removeRental(i);
+	try {
+		SACommand select;
+		select.setConnection(&con);
+		select.setCommandText(_TSA("SELECT Rental.MaRental, Rental.MaKH FROM Category INNER JOIN Motobike ON Category.MaLoaiXe = Motobike.MaLoaiXe INNER JOIN Rental ON Motobike.MaXe = Rental.MaXe WHERE Category.MaLoaiXe = :MaLoaiXe"));
+		select.Param(_TSA("MaLoaiXe")).setAsInt64() = type->getMaLoaiXe();
+		select.Execute();
+		while (select.FetchNext()) {
+			sa_int64_t MaRental = select.Field("MaRental").asInt64();
+			sa_int64_t MaKH = select.Field("MaKH").asInt64();
+			int pos_customer = this->searchMaCustomer((int)MaKH);
+			for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
+				if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
+					Customer[pos_customer]->removeRental(i);
+				}
 			}
 		}
+		SACommand Del;
+		Del.setConnection(&con);
+		Del.setCommandText(_TSA("DELETE FROM Category WHERE MaLoaiXe = :MaLoaiXe"));
+		Del.Param(_TSA("MaLoaiXe")).setAsInt64() = type->getMaLoaiXe();
+		Del.Execute();
+		int pos_category = this->searchMaCategory(type->getMaLoaiXe());
+		delete TypeMoto[pos_category];
+		for (unsigned int i = pos_category; i < TypeMoto.size() - 1; ++i) {
+			TypeMoto[i] = TypeMoto[i + 1];
+		}
+		TypeMoto.resize(TypeMoto.size() - 1);
 	}
-	SACommand Del;
-	Del.setConnection(&con);
-	Del.setCommandText(_TSA("DELETE FROM Category WHERE MaLoaiXe = :MaLoaiXe"));
-	Del.Param(_TSA("MaLoaiXe")).setAsInt64() = type->getMaLoaiXe();
-	Del.Execute();
-	int pos_category = this->searchMaCategory(type->getMaLoaiXe());
-	delete TypeMoto[pos_category];
-	for (unsigned int i = pos_category; i < TypeMoto.size() - 1; ++i) {
-		TypeMoto[i] = TypeMoto[i + 1];
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
 	}
-	TypeMoto.resize(TypeMoto.size() - 1);
 }
 
 void QL_RentalMoto::deleteMotobike() {
 	Motobike* moto = this->searchMotobike("delete");
 	if (moto == NULL) return;
-	SACommand select;
-	select.setConnection(&con);
-	select.setCommandText(_TSA("SELECT Rental.MaKH, Rental.MaRental FROM Motobike INNER JOIN Rental ON Motobike.MaXe = Rental.MaXe WHERE Motobike.MaXe = :MaXe"));
-	select.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
-	select.Execute();
-	while (select.FetchNext()) {
-		sa_int64_t MaKH = select.Field("MaKH").asInt64();
-		sa_int64_t MaRental = select.Field("MaRental").asInt64();
-		int pos_customer = this->searchMaCustomer((int)MaKH);
-		for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
-			if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
-				Customer[pos_customer]->removeRental(i);
+	try {
+		SACommand select;
+		select.setConnection(&con);
+		select.setCommandText(_TSA("SELECT Rental.MaKH, Rental.MaRental FROM Motobike INNER JOIN Rental ON Motobike.MaXe = Rental.MaXe WHERE Motobike.MaXe = :MaXe"));
+		select.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+		select.Execute();
+		while (select.FetchNext()) {
+			sa_int64_t MaKH = select.Field("MaKH").asInt64();
+			sa_int64_t MaRental = select.Field("MaRental").asInt64();
+			int pos_customer = this->searchMaCustomer((int)MaKH);
+			for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
+				if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
+					Customer[pos_customer]->removeRental(i);
+				}
 			}
 		}
+		SACommand Del;
+		Del.setConnection(&con);
+		Del.setCommandText(_TSA("DELETE FROM Motobike WHERE MaXe = :MaXe"));
+		Del.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
+		Del.Execute();
+		int pos_category = this->searchCategoryOfMotobike(moto->getTenXe());
+		TypeMoto[pos_category]->setNumber(TypeMoto[pos_category]->getNumber() - 1);
+		for (unsigned int i = 0; i < TypeMoto[pos_category]->getListMoto().size(); ++i) {
+			if (TypeMoto[pos_category]->getListMoto()[i]->getMaXe() == moto->getMaXe()) {
+				delete TypeMoto[pos_category]->getListMoto()[i];
+				for (unsigned int j = i; j < TypeMoto[pos_category]->getListMoto().size() - 1; ++i) {
+					TypeMoto[pos_category]->getListMoto()[j] = TypeMoto[pos_category]->getListMoto()[j + 1];
+				}
+				TypeMoto[pos_category]->getListMoto().resize(TypeMoto[pos_category]->getListMoto().size() - 1);
+				break;
+			}
+		}
+		SACommand update;
+		update.setConnection(&con);
+		update.setCommandText(_TSA("UPDATE Category SET Number = Number - 1 Where MaLoaiXe = :MaLoaiXe"));
+		update.Param(_TSA("MaLoaiXe")).setAsInt64() = TypeMoto[pos_category]->getMaLoaiXe();
+		update.Execute();
 	}
-	SACommand Del;
-	Del.setConnection(&con);
-	Del.setCommandText(_TSA("DELETE FROM Motobike WHERE MaXe = :MaXe"));
-	Del.Param(_TSA("MaXe")).setAsInt64() = moto->getMaXe();
-	Del.Execute();
-	int pos_category = this->searchCategoryOfMotobike(moto->getTenXe());
-	for (unsigned int i = 0; i < TypeMoto[pos_category]->getListMoto().size(); ++i) {
-		if (TypeMoto[pos_category]->getListMoto()[i]->getMaXe() == moto->getMaXe()) {
-			delete TypeMoto[pos_category]->getListMoto()[i];
-			for (unsigned int j = i; j < TypeMoto[pos_category]->getListMoto().size() - 1; ++i) {
-				TypeMoto[pos_category]->getListMoto()[j] = TypeMoto[pos_category]->getListMoto()[j + 1];
-			}
-			TypeMoto[pos_category]->getListMoto().resize(TypeMoto[pos_category]->getListMoto().size() - 1);
-			break;
-		}
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
 	}
 }
 
 void QL_RentalMoto::deleteRental() {
 	Rental* rental = this->searchRental("delete");
 	if (rental == NULL) return;
-	SACommand select;
-	select.setConnection(&con);
-	select.setCommandText(_TSA("SELECT Rental.MaKH, Rental.MaRental, Rental.MaXe FROM Rental INNER JOIN Customers ON Rental.MaKH = Customers.MaKH INNER JOIN Motobike ON Rental.MaXe = Motobike.MaXe WHERE Rental.MaRental = :MaRental"));
-	select.Param(_TSA("MaRental")).setAsInt64() = rental->getMaRental();
-	select.Execute();
-	while (select.FetchNext()) {
-		sa_int64_t MaKH = select.Field("MaKh").asInt64();
-		sa_int64_t MaXe = select.Field("MaXe").asInt64();
-		sa_int64_t MaRental = select.Field("MaRental").asInt64();
-		int pos_customer = this->searchMaCustomer((int)MaKH);
-		for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
-			if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
-				Customer[pos_customer]->removeRental(i);
+	try {
+		SACommand select;
+		select.setConnection(&con);
+		select.setCommandText(_TSA("SELECT Rental.MaKH, Rental.MaRental, Rental.MaXe FROM Rental INNER JOIN Customers ON Rental.MaKH = Customers.MaKH INNER JOIN Motobike ON Rental.MaXe = Motobike.MaXe WHERE Rental.MaRental = :MaRental"));
+		select.Param(_TSA("MaRental")).setAsInt64() = rental->getMaRental();
+		select.Execute();
+		while (select.FetchNext()) {
+			sa_int64_t MaKH = select.Field("MaKh").asInt64();
+			sa_int64_t MaXe = select.Field("MaXe").asInt64();
+			sa_int64_t MaRental = select.Field("MaRental").asInt64();
+			int pos_customer = this->searchMaCustomer((int)MaKH);
+			for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
+				if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
+					Customer[pos_customer]->removeRental(i);
+				}
 			}
-		}
-		for (unsigned int i = 0; i < TypeMoto.size(); ++i)
-			for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
-				if (TypeMoto[i]->getListMoto()[j]->getMaXe() == (int)MaXe) {
-					for (unsigned int k = 0; k < TypeMoto[i]->getListMoto()[j]->getListRental().size(); ++k) {
-						if (TypeMoto[i]->getListMoto()[j]->getListRental()[k]->getMaRental() == MaRental) {
-							TypeMoto[i]->getListMoto()[j]->removeRental(k);
+			for (unsigned int i = 0; i < TypeMoto.size(); ++i)
+				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
+					if (TypeMoto[i]->getListMoto()[j]->getMaXe() == (int)MaXe) {
+						for (unsigned int k = 0; k < TypeMoto[i]->getListMoto()[j]->getListRental().size(); ++k) {
+							if (TypeMoto[i]->getListMoto()[j]->getListRental()[k]->getMaRental() == MaRental) {
+								TypeMoto[i]->getListMoto()[j]->removeRental(k);
+							}
 						}
 					}
 				}
-			}
+		}
+		SACommand Del;
+		Del.setConnection(&con);
+		Del.setCommandText(_TSA("DELETE FROM Rental WHERE MaRental = :Marental"));
+		Del.Param(_TSA("Marental")).setAsInt64() = rental->getMaRental();
+		Del.Execute();
 	}
-	SACommand Del;
-	Del.setConnection(&con);
-	Del.setCommandText(_TSA("DELETE FROM Rental WHERE MaRental = :Marental"));
-	Del.Param(_TSA("Marental")).setAsInt64() = rental->getMaRental();
-	Del.Execute();
+	catch (SAException& e) {
+		cout << e.ErrText().GetMultiByteChars() << endl;
+	}
+}
+
+bool downCustomers(char* s1, char* s2) {
+	return (strcmp(s1, s2) > 0) ? 1 : 0;
+}
+
+bool upCustomers(char* s1, char* s2) {
+	return (strcmp(s1, s2) > 0) ? 0 : 1;
+}
+
+//void QL_RentalMoto::QuickSortCustomer(int start, int end, bool (QL_RentalMoto::*sort)(char*, char*)) {
+//	int left = start, right = end - 1;
+//	if (left <= right) {
+//		char* pivot = Customer[(start + end) / 2]->getFullName();
+//		while (left <= right) {
+//			while ((this->*sort)(Customer[left]->getFullName(), pivot)) ++left;
+//			while (!(this->*sort)(Customer[right]->getFullName(), pivot)) --right;
+//			if (left < right) {
+//				Customers* temp1 = Customer[left];
+//				Customers* temp2 = Customer[right];
+//				Customer[left] = temp2;
+//				Customer[right] = temp1;
+//			}
+//			left++; right--;
+//		}
+//		if (start < right) QuickSortCustomer(start, right, sort);
+//		if (left < end) QuickSortCustomer(left, end, sort);
+//	}
+//}
+
+void QL_RentalMoto::SortCustomer() {
+	cout << "\tSORT CUSTOMER\n";
+	cout << "\t1. Sort Decrease Customers By Name" << endl;
+	cout << "\t2. Sort Increase Customers By Name" << endl;
+	cout << "\t0. Exit(0)" << endl;
+	int selection;
+	bool flash = false;
+	do {
+		cout << "\t=>selection: ";
+		cin >> selection;
+		cin.ignore();
+		switch (selection)
+		{
+		case 1:
+		{
+
+			//this->QuickSortCustomer(0, Customer.size(), &QL_RentalMoto::downCustomers);
+			QuickSortCustomer<QL_RentalMoto, Customers>(0, Customer.size() - 1, downCustomers, Customer);
+			break;
+		}
+		case 2:
+		{
+			//this->QuickSortCustomer(0, Customer.size(), upCustomers);
+			QuickSortCustomer<QL_RentalMoto, Customers>(0, Customer.size() - 1, upCustomers, Customer);
+			break;
+		}
+		case 0:
+		{
+			flash = true;
+			break;
+		}
+		default:
+			cout << "Error: You selection invalid!" << endl;
+			break;
+		}
+	} while (!flash);
+}
+
+void QL_RentalMoto::SortCategory() {
+	cout << "\tSORT CUSTOMER\n";
+	cout << "\t1. Sort Decrease Category By Name Type Category" << endl;
+	cout << "\t2. Sort Increase Customers By Name Type Category" << endl;
+	cout << "\t0. Exit(0)" << endl;
+	int selection;
+	bool flash = false;
+	do {
+		cout << "\t=>selection: ";
+		cin >> selection;
+		cin.ignore();
+		switch (selection)
+		{
+		case 1:
+		{
+
+			//this->QuickSortCustomer(0, Customer.size(), &QL_RentalMoto::downCustomers);
+			QuickSortCategory<QL_RentalMoto, Category>(0, TypeMoto.size() - 1, downCustomers, TypeMoto);
+			break;
+		}
+		case 2:
+		{
+			//this->QuickSortCustomer(0, Customer.size(), upCustomers);
+			QuickSortCategory<QL_RentalMoto, Category>(0, TypeMoto.size() - 1, upCustomers, TypeMoto);
+			break;
+		}
+		case 0:
+		{
+			flash = true;
+			break;
+		}
+		default:
+			cout << "Error: You selection invalid!" << endl;
+			break;
+		}
+	} while (!flash);
 }

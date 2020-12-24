@@ -1,6 +1,7 @@
 #include "Customers.h"
 #include <exception>
 #include <string>
+#include<iomanip>
 int Customers::CustomerID = 0;
 
 Customers::Customers(int day, int month, int year, char* fullName, char* country, char* city,
@@ -33,22 +34,22 @@ void Customers::scan() {
 	string GioiTinh;
 	do {
 		try {
-			cout << "\t\t->Nhap thong tin Customer" << endl;
-			cout << "\tFull Name: ";
+			cout << "\t\t\t\tNhap thong tin Customer" << endl;
+			cout << "\t\t\tFull Name: ";
 			cin.getline(this->fullName, 50);
-			cout << "\tCountry: ";
+			cout << "\t\t\tCountry: ";
 			cin.getline(this->country, 50);
-			cout << "\tCity: ";
+			cout << "\t\t\tCity: ";
 			cin.getline(this->city, 50);
-			cout << "\tCMND: ";
+			cout << "\t\t\tCMND: ";
 			cin.getline(this->CMND, 50);
-			cout << "\tSDT: ";
+			cout << "\t\t\tSDT: ";
 			cin.getline(this->SDT, 50);
-			cout << "\tEmail: ";
+			cout << "\t\t\tEmail: ";
 			cin.getline(this->email, 50);
-			cout << "\tGender: ";
+			cout << "\t\t\tGender: ";
 			getline(cin, GioiTinh);
-			cout << "\tBirthDay";
+			cout << "\t\t\tBirthDay";
 			this->birthDay.scan();
 			this->validateInput(GioiTinh);
 			this->birthDay.isValid();
@@ -56,7 +57,7 @@ void Customers::scan() {
 			check = true;
 		}
 		catch (invalid_argument& exception) {
-			cout << "\tError: " << exception.what() << endl;
+			cout << "\t\t\tError: " << exception.what() << endl;
 			check = false;
 		}
 	} while (!check);
@@ -123,16 +124,19 @@ void Customers::setCountry(char* country) {
 }
 
 ostream& operator<<(ostream& out, const Customers& customer) {
-	out << "\t->Thong tin Customer:" << endl;
-	out << "Ma Khach Hang: " << customer.maKH << endl;
-	out << "Full Name: " << customer.fullName << endl;
-	out << "Country: " << customer.country << endl;
-	out << "City: " << customer.city << endl;
-	out << "CMND: " << customer.CMND << endl;
-	out << "Phone: " << customer.SDT << endl;
-	out << "Address Email: " << customer.email << endl;
-	out << "Gender: " << ((customer.gender) ? "nam" : "nu") << endl;
-	out << "BirthDay: " << customer.birthDay << endl;
+	//out << "\t->Thong tin Customer:" << endl;
+	//out << "Ma Khach Hang: " << customer.maKH << endl;
+	//out << "Full Name: " << customer.fullName << endl;
+	//out << "Country: " << customer.country << endl;
+	//out << "City: " << customer.city << endl;
+	//out << "CMND: " << customer.CMND << endl;
+	//out << "Phone: " << customer.SDT << endl;
+	//out << "Address Email: " << customer.email << endl;
+	//out << "Gender: " << ((customer.gender) ? "nam" : "nu") << endl;
+	//out << "BirthDay: " << customer.birthDay << endl;
+	out << std::left << setw(10) << customer.maKH << "| " << setw(10) << customer.fullName << "|  " << setw(10) << customer.country
+		<< "|  " << setw(10) << customer.city << "|  " << setw(10) << customer.CMND << "|  " << setw(15) << customer.email << "|  " << setw(10) << customer.SDT
+		<< "|  " << setw(5) << ((customer.gender) ? "nam" : "nu") << "|  " <<  customer.birthDay ;
 	return out;
 }
 

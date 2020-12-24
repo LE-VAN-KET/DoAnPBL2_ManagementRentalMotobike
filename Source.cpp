@@ -5,16 +5,20 @@
 #include <string.h>
 using namespace std;
 void menu_Category(QL_RentalMoto*& db) {
-	cout << "\t\t1. Add Category Motobike" << endl;
-	cout << "\t\t2. Read All Category Motobike" << endl;
-	cout << "\t\t3. Update Category Motobike" << endl;
-	cout << "\t\t4. Delete Category Motobike" << endl;
-	cout << "\t\t5. Search Category Motobike" << endl;
-	cout << "\t\t-------------+-------------" << endl;
 	int choose;
 	bool check = false;
 	do {
-		cout << "\t=>Choose: ";
+		cout << endl;
+		cout << "\t\t\t            CATEGORY                 " << endl;
+		cout << "\t\t\t ------------------------------------" << endl;
+		cout << "\t\t\t|  <1>. Add Category Motobike        |" << endl;
+		cout << "\t\t\t|  <2>. Read All Category Motobike   |" << endl;
+		cout << "\t\t\t|  <3>. Update Category Motobike     |" << endl;
+		cout << "\t\t\t|  <4>. Delete Category Motobike     |" << endl;
+		cout << "\t\t\t|  <5>. Search Category Motobike     |" << endl;
+		cout << "\t\t\t|  <6>. Sort Category By Name        |" << endl;
+		cout << "\t\t\t ----------------+-------------------" << endl;
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -24,6 +28,7 @@ void menu_Category(QL_RentalMoto*& db) {
 			check = true;
 			break;
 		case 2:
+			system("cls");
 			db->readCategory();
 			check = true;
 			break;
@@ -43,24 +48,34 @@ void menu_Category(QL_RentalMoto*& db) {
 			check = true;
 			break;
 		}
+		case 6:
+		{
+			db->SortCategory();
+			check = true;
+			break;
+		}
 		default:
-			cout << "\t\tError: select invalid!" << endl;
+			system("cls");
+			cout << "\t\t\tError: You Choose invalid!" << endl;
 			break;
 		}
 	} while (!check);
 }
 
 void menu_Motobikes(QL_RentalMoto*& db) {
-	cout << "\t\t1. Add Motobike" << endl;
-	cout << "\t\t2. Read All Motobike" << endl;
-	cout << "\t\t3. Update Motobike" << endl;
-	cout << "\t\t4. Delete Motobike" << endl;
-	cout << "\t\t5. Search Motobike" << endl;
-	cout << "\t\t-------------+-------------" << endl;
 	int choose;
 	bool check = false;
 	do {
-		cout << "\t=>Choose: ";
+		cout << endl;
+		cout << "\t\t\t          MOTOBIKE         " << endl;
+		cout << "\t\t\t --------------------------" << endl;
+		cout << "\t\t\t|   <1>. Add Motobike      |" << endl;
+		cout << "\t\t\t|   <2>. Read All Motobike |" << endl;
+		cout << "\t\t\t|   <3>. Update Motobike   |" << endl;
+		cout << "\t\t\t|   <4>. Delete Motobike   |" << endl;
+		cout << "\t\t\t|   <5>. Search Motobike   |" << endl;
+		cout << "\t\t\t -------------+------------" << endl;
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -86,23 +101,28 @@ void menu_Motobikes(QL_RentalMoto*& db) {
 			check = true;
 			break;
 		default:
-			cout << "\t\tError: select invalid!" << endl;
+			system("cls");
+			cout << "\t\t\tError: You choose invalid!" << endl;
 			break;
 		}
 	} while (!check);
 }
 
 void menu_Customers(QL_RentalMoto*& db) {
-	cout << "\t\t1. Add Information Customer" << endl;
-	cout << "\t\t2. Read All Information Customer" << endl;
-	cout << "\t\t3. Update Information Customer" << endl;
-	cout << "\t\t4. Delete Customer" << endl;
-	cout << "\t\t5. Search Customer" << endl;
-	cout << "\t\t-------------+-------------" << endl;
 	int choose;
 	bool check = false;
 	do {
-		cout << "\t=>Choose: ";
+		cout << endl;
+		cout << "\t\t\t               CUSTOMERS             " << endl;
+		cout << "\t\t\t -------------------------------------" << endl;
+		cout << "\t\t\t|  <1>. Add Information Customer      |" << endl;
+		cout << "\t\t\t|  <2>. Read All Information Customer |" << endl;
+		cout << "\t\t\t|  <3>. Update Information Customer   |" << endl;
+		cout << "\t\t\t|  <4>. Delete Customer               |" << endl;
+		cout << "\t\t\t|  <5>. Search Customer               |" << endl;
+		cout << "\t\t\t|  <6>. Sort Customer                 |" << endl;
+		cout << "\t\t\t ------------------+------------------" << endl;
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -129,24 +149,34 @@ void menu_Customers(QL_RentalMoto*& db) {
 			check = true;
 			break;
 		}
+		case 6:
+		{
+			db->SortCustomer();
+			check = true;
+			break;
+		}
 		default:
-			cout << "\t\tError: select invalid!" << endl;
+			system("cls");
+			cout << "\t\t\tError: You choose invalid!" << endl;
 			break;
 		}
 	} while (!check);
 }
 
 void menu_Rental(QL_RentalMoto*& db) {
-	cout << "\t\t1. Add Rental Motobike" << endl;
-	cout << "\t\t2. Read All Rental Motobike" << endl;
-	cout << "\t\t3. Update Rental Motobike" << endl;
-	cout << "\t\t4. Delete Rental Motobike" << endl;
-	cout << "\t\t5. Search Rental Motobike" << endl;
-	cout << "\t\t-------------+-------------" << endl;
 	int choose;
 	bool check = false;
 	do {
-		cout << "\t=>Choose: ";
+		cout << endl;
+		cout << "\t\t\t           RENTAL MOTOBIKE          " << endl;
+		cout << "\t\t\t------------------------------------" << endl;
+		cout << "\t\t\t|  <1>. Add Rental Motobike         |" << endl;
+		cout << "\t\t\t|  <2>. Read All Rental Motobike    |" << endl;
+		cout << "\t\t\t|  <3>. Update Rental Motobike      |" << endl;
+		cout << "\t\t\t|  <4>. Delete Rental Motobike      |" << endl;
+		cout << "\t\t\t|  <5>. Search Rental Motobike      |" << endl;
+		cout << "\t\t\t -----------------+-----------------" << endl;
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -172,7 +202,8 @@ void menu_Rental(QL_RentalMoto*& db) {
 			check = true;
 			break;
 		default:
-			cout << "\t\tError: select invalid!" << endl;
+			system("cls");
+			cout << "\t\t\tError: select invalid!" << endl;
 			break;
 		}
 	} while (!check);
@@ -181,16 +212,23 @@ void Menu(QL_RentalMoto*& db) {
 	int selection;
 	bool flash = false;
 	do {
-		cout << "\t\t========MENU========" << endl;
-		cout << "\t\t1. Book Motobike" << endl;
-		cout << "\t\t2. Return Motobike" << endl;
-		cout << "\t\t3. Categorys Motobikes" << endl;
-		cout << "\t\t4. Motobikes" << endl;
-		cout << "\t\t5. Customers" << endl;
-		cout << "\t\t6. Rentals" << endl;
-		cout << "\t\t0. Exit(0)" << endl;
-		cout << "\t\t====================" << endl;
-		cout << "\t=>Selection: ";
+		cout << endl;
+		cout << "\t\t\t -----------MENU-----------" << endl;
+		cout << "\t\t\t|    1. Book Motobike      |" << endl;
+		cout << "\t\t\t+__________________________+" << endl;
+		cout << "\t\t\t|    2. Return Motobike    |" << endl;
+		cout << "\t\t\t+__________________________+" << endl;
+		cout << "\t\t\t|    3. Categorys Motobikes|" << endl;
+		cout << "\t\t\t+__________________________+" << endl;
+		cout << "\t\t\t|    4. Motobikes          |" << endl;
+		cout << "\t\t\t+__________________________+" << endl;
+		cout << "\t\t\t|    5. Customers          |" << endl;
+		cout << "\t\t\t+__________________________+" << endl;
+		cout << "\t\t\t|    6. Rentals            |" << endl;
+		cout << "\t\t\t+__________________________+" << endl;
+		cout << "\t\t\t|    0. EXIT(0)            |" << endl;
+		cout << "\t\t\t --------------------------" << endl;
+		cout << "\t\t\t=>Selection: ";
 		cin >> selection;
 		cin.ignore();
 		switch (selection)
@@ -217,7 +255,8 @@ void Menu(QL_RentalMoto*& db) {
 			flash = true;
 			break;
 		default:
-			cout << "\tErr: selection invalid !" << endl;
+			system("cls");
+			cout << "\t\t\tError: You selection invalid !" << endl;
 			break;
 		}
 	} while (!flash);

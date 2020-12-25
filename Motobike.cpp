@@ -23,26 +23,28 @@ Motobike::~Motobike() {
 }
 
 void Motobike::scan() {
-	cout << "\t\t-> Thong tin Motobike:" << endl;
-	cout << "\tTenXe: ";
+	cout << "\t\t\t  Thong tin Motobike:" << endl;
+	cout << "\t\t\tTenXe: ";
 	cin.getline(this->TenXe, 50);
-	cout << "\tBienSo: ";
+	cout << "\t\t\tBienSo: ";
 	cin.getline(this->BienSo, 50);
-	cout << "\tColor: ";
+	cout << "\t\t\tColor: ";
 	cin.getline(this->Color, 50);
-	cout << "\tPrice/date: ";
+	cout << "\t\t\tPrice/date: ";
 	cin >> this->PriceDate;
 	this->status = false;
 	cin.ignore();
 }
 
 void Motobike::read() {
-	cout << "Ma Xe: " << this->MaXe << endl;
-	cout << "Ten Xe: " << this->TenXe << endl;
-	cout << "Bien So: " << this->BienSo << endl;
-	cout << "Color: " << this->Color << endl;
-	cout << "Price/date " << setprecision(3) << fixed << this->PriceDate << endl;
-	cout << "Status: " << this->status << endl;
+	//cout << "Ma Xe: " << this->MaXe << endl;
+	//cout << "Ten Xe: " << this->TenXe << endl;
+	//cout << "Bien So: " << this->BienSo << endl;
+	//cout << "Color: " << this->Color << endl;
+	//cout << "Price/date " << setprecision(3) << fixed << this->PriceDate << endl;
+	//cout << "Status: " << this->status << endl;
+	cout << std::left << setw(10) << this->MaXe << "|" << setw(20) << this->TenXe << "|" << setw(15) << this->BienSo << "|" << setw(15) << this->Color << "|"
+		<< setw(10) << setprecision(3) << fixed << this->PriceDate << "|" << setw(10) << this->status << "|";
 }
 
 void Motobike::setMaXe(int maxe) {

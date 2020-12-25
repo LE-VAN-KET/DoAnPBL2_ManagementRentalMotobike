@@ -1,5 +1,6 @@
 #include <exception>
 #include <string>
+#include <iomanip>
 #include "Date.h"
 //  constructor that initializes all data members
 Date::Date(int day, int month, int year) : month(month), day(day), year(year)
@@ -28,11 +29,13 @@ void Date::setDate(int day, int month, int year)
 //  print the invoking object in the format mm/dd/yyyy
 void Date::showDate()
 {
-    cout << this->day << '/' << this->month << '/' << this->year << endl;
+    cout << setw(15) << this->day << '/' << this->month << '/' << this->year << endl;
 }
 
 ostream& operator<<(ostream& out, const Date& date) {
-    out << date.day << '/' << date.month << '/' << date.year << endl;
+    string result = to_string(date.day) + '/' + to_string(date.month) + '/' + to_string(date.year);
+    out << result;
+    //out << date.day << '/' << date.month << '/' << date.year ;
     return out;
 }
 
@@ -84,6 +87,9 @@ void Date::scan() {
         ++i;
     }
     splitdate[i] = date;
+    for (int i = 0; i < 3; ++i) {
+        if (splitdate[i] == "") throw invalid_argument("Error: day, month and year not null!");
+    }
     this->day = atoi(splitdate[0].c_str());
     this->month = atoi(splitdate[1].c_str());
     this->year = atoi(splitdate[2].c_str());

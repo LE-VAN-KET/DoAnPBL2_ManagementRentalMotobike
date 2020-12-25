@@ -131,7 +131,7 @@ void QL_RentalMoto::addMotobike() {
 			check = true;
 		}
 		catch (invalid_argument& exception) {
-			cout << "\t" << exception.what() << endl;
+			cout << "\t\t\t" << exception.what() << endl;
 		}
 	} while (!check);
 	string nameType, MaCategory;
@@ -139,14 +139,14 @@ void QL_RentalMoto::addMotobike() {
 	int pos = -1;
 	do {
 		try {
-			cout << "\tTen Loai Xe: ";
+			cout << "\t\t\tTen Loai Xe: ";
 			getline(cin, nameType);
 			pos = this->searchNameCategory(&nameType[0]);
 			if (pos == -1) throw invalid_argument("Error: Ten Loai Xe Not Exists!");
 			flash = true;
 		}
 		catch (invalid_argument& exception) {
-			cout << "\t" << exception.what() << endl;
+			cout << "\t\t\t" << exception.what() << endl;
 		}
 	} while (!flash);
 	//cmd.setConnection(&con);
@@ -220,7 +220,10 @@ void QL_RentalMoto::readCategory() {
 }
 
 void QL_RentalMoto::readMotobike() {
-	for (unsigned int i = 0; i < this->TypeMoto.size(); ++i) {
+	cout << std::left << setw(10) << " Ma Xe" << "|" << setw(20) << " Ten Xe" << "|" << setw(15) << " Bien So" << "|" << setw(15) << " Color" << "|"
+		<< setw(10) << " Price/day" << "|" << setw(10) << " Status" << "|" << setw(15) << " Ma Loai Xe" << endl;
+	cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
+ 	for (unsigned int i = 0; i < this->TypeMoto.size(); ++i) {
 		this->TypeMoto[i]->readMotobike();
 	}
 }
@@ -299,11 +302,11 @@ void QL_RentalMoto::selectCustomers() {
 }
 
 void QL_RentalMoto::readCustomer() {
-	cout << std::left << setw(10) << "Ma KH" << "| " << setw(10) << "Full Name" << "|  " << setw(10) << "Country"
-		<< "|  " << setw(10) << "City" << "|  " << setw(10) << "CMND" << "|  " << setw(15) << "Email" << "|  " << setw(10) << "Phone"
-		<< "|  " << setw(5) << "Gender" << "|  " << setw(10) << "BirthDay" << endl;
-	cout << "----------+----------+----------------+--------------+----------------+--------------"
-		"-------+----------" << endl;
+	cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
+		<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
+		<< "|" << setw(10) << "Gender" << "|" << setw(20) << "  BirthDay" << endl;
+	cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+		"----+----------+--------------------" << endl;
 	for (unsigned int i = 0; i < Customer.size(); ++i) {
 		cout << *(this->Customer[i]);
 	}
@@ -437,28 +440,33 @@ int QL_RentalMoto::searchMaCustomer(int maCustomer) {
 }
 
 void QL_RentalMoto::readAllRental() {
-	for (unsigned int i = 0; i < Customer.size(); ++i) {
+	cout << std::left << setw(10) << " Ma rental" << "|" << setw(15) << " RentDay" << "|" << setw(15) << " ReturnDay" << "|"
+		<< setw(15) << " ThanhTien" << "|" << setw(10) << "Status" << "|" << setw(15) << " MaKH" << "|" << setw(15) << " Ma Xe" << endl;
+	cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
+ 	for (unsigned int i = 0; i < Customer.size(); ++i) {
 		for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
 			Customer[i]->getListRental()[j]->read();
+			cout << setw(15) << this->searchMaXeByMaRental(Customer[i]->getListRental()[j]->getMaRental()) << "|" << setw(15) << Customer[i]->getMaKH() << endl;
+			cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 		}
 	}
 }
 
 Motobike* QL_RentalMoto::searchMotobike(const string& method) {
-	cout << "\t\t\tTim kiem Motobike\n";
-	cout << "\t\t1. Tim kiem Ma Motobike\n";
-	cout << "\t\t2. Tim kiem Ten Motobike\n";
-	cout << "\t\t3. Tim kiem Bien So Motobike\n";
+	cout << "\t\t\t---------TIM KIEM MOTOBIKE-------------\n";
+	cout << "\t\t\t| (1). Tim kiem Ma Motobike            |\n";
+	cout << "\t\t\t| (2). Tim kiem Ten Motobike           |\n";
+	cout << "\t\t\t| (3). Tim kiem Bien So Motobike       |\n";
 	if (method == "search") {
-		cout << "\t\t4. Tim kiem Color Motobike\n";
-		cout << "\t\t5. Tim kiem Price one day Motobike\n";
-		cout << "\t\t6. Tim kiem status Motobike\n";
+		cout << "\t\t\t| (4). Tim kiem Color Motobike         |\n";
+		cout << "\t\t\t| (5). Tim kiem Price one day Motobike |\n";
+		cout << "\t\t\t| (6). Tim kiem status Motobike        |\n";
 	}
-	cout << "\t\t================================\n";
+	cout << "\t\t\t --------------------------------------\n";
 	int selection;
 	bool check = false;
 	do {
-		cout << "\t=>selection: ";
+		cout << "\t\t\t=>selection: ";
 		cin >> selection;
 		cin.ignore();
 		switch (selection)
@@ -466,65 +474,85 @@ Motobike* QL_RentalMoto::searchMotobike(const string& method) {
 		case 1:
 		{
 			int maMotobike;
-			cout << "\tMa Xe: ";
+			cout << "\t\t\tMa Xe: ";
 			cin >> maMotobike; cin.ignore();
 			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
 				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
 					if (TypeMoto[i]->getListMoto()[j]->getMaXe() == maMotobike) {
+						cout << std::left << setw(10) << " Ma Xe" << "|" << setw(20) << " Ten Xe" << "|" << setw(15) << " Bien So" << "|" << setw(15) << " Color" << "|"
+							<< setw(10) << " Price/day" << "|" << setw(10) << " Status" << "|" << setw(15) << " Ma Loai Xe" << endl;
+						cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
 						(TypeMoto[i]->getListMoto()[j])->read();
+						cout << setw(15) << TypeMoto[i]->getMaLoaiXe();
 						return (TypeMoto[i]->getListMoto()[j]);
 					}
 				}
 			}
-			cout << "\tError: Ma Motobike Not Exists!" << endl;
+			cout << "\t\t\tError: Ma Motobike Not Exists!" << endl;
 			check = true;
 			break;
 		}
 		case 2:
 		{
 			string TenXe;
-			cout << "\tTen Xe: ";
+			cout << "\t\t\tTen Xe: ";
 			getline(cin, TenXe);
 			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
 				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
 					if (string(TypeMoto[i]->getListMoto()[j]->getTenXe()) == TenXe) {
+						cout << std::left << setw(10) << " Ma Xe" << "|" << setw(20) << " Ten Xe" << "|" << setw(15) << " Bien So" << "|" << setw(15) << " Color" << "|"
+							<< setw(10) << " Price/day" << "|" << setw(10) << " Status" << "|" << setw(15) << " Ma Loai Xe" << endl;
+						cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
 						TypeMoto[i]->getListMoto()[j]->read();
+						cout << setw(15) << TypeMoto[i]->getMaLoaiXe();
 						return TypeMoto[i]->getListMoto()[j];
 					}
 				}
 			}
-			cout << "\tError: Ten Xe Not Exist!" << endl;
+			cout << "\t\t\tError: Ten Xe Not Exist!" << endl;
 			check = true;
 			break;
 		}
 		case 3:
 		{
 			string BienSo;
-			cout << "\tBien So: ";
+			cout << "\t\t\tBien So: ";
 			getline(cin, BienSo);
 			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
 				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
 					if (string(TypeMoto[i]->getListMoto()[j]->getBienSo()) == BienSo) {
+						cout << std::left << setw(10) << " Ma Xe" << "|" << setw(20) << " Ten Xe" << "|" << setw(15) << " Bien So" << "|" << setw(15) << " Color" << "|"
+							<< setw(10) << " Price/day" << "|" << setw(10) << " Status" << "|" << setw(15) << " Ma Loai Xe" << endl;
+						cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
+						TypeMoto[i]->getListMoto()[j]->read();
+						cout << setw(15) << TypeMoto[i]->getMaLoaiXe();
 						return TypeMoto[i]->getListMoto()[j];
 					}
 				}
 			}
-			cout << "\tError: Bien So Not Exist!" << endl;
+			cout << "\t\t\tError: Bien So Not Exist!" << endl;
 			check = true;
 			break;
 		}
 		case 4:
 		{
 			if (method != "search") {
-				cout << "\tError: seclection invalid!" << endl;
+				cout << "\t\t\tError: seclection invalid!" << endl;
 				break;
 			}
 			string Color;
-			cout << "\tColor: ";
+			cout << "\t\t\tColor: ";
 			getline(cin, Color);
+			cout << std::left << setw(10) << " Ma Xe" << "|" << setw(20) << " Ten Xe" << "|" << setw(15) << " Bien So" << "|" << setw(15) << " Color" << "|"
+				<< setw(10) << " Price/day" << "|" << setw(10) << " Status" << "|" << setw(15) << " Ma Loai Xe" << endl;
+			cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
 			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
 				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
-					if (string(TypeMoto[i]->getListMoto()[j]->getColor()) == Color) TypeMoto[i]->getListMoto()[j]->read();
+					if (string(TypeMoto[i]->getListMoto()[j]->getColor()) == Color) {
+						TypeMoto[i]->getListMoto()[j]->read();
+						cout << setw(15) << TypeMoto[i]->getMaLoaiXe() << endl;
+						cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
+					}
 				}
 			}
 			check = true;
@@ -533,15 +561,22 @@ Motobike* QL_RentalMoto::searchMotobike(const string& method) {
 		case 5:
 		{
 			if (method != "search") {
-				cout << "\tError: seclection invalid!" << endl;
+				cout << "\t\t\tError: seclection invalid!" << endl;
 				break;
 			}
 			double PriceDate;
-			cout << "\tPrice/date: ";
+			cout << "\t\t\tPrice/date: ";
 			cin >> PriceDate; cin.ignore();
+			cout << std::left << setw(10) << " Ma Xe" << "|" << setw(20) << " Ten Xe" << "|" << setw(15) << " Bien So" << "|" << setw(15) << " Color" << "|"
+				<< setw(10) << " Price/day" << "|" << setw(10) << " Status" << "|" << setw(15) << " Ma Loai Xe" << endl;
+			cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
 			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
 				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
-					if (TypeMoto[i]->getListMoto()[j]->getPriceDate() == PriceDate) TypeMoto[i]->getListMoto()[j]->read();
+					if (TypeMoto[i]->getListMoto()[j]->getPriceDate() == PriceDate) {
+						TypeMoto[i]->getListMoto()[j]->read();
+						cout << setw(15) << TypeMoto[i]->getMaLoaiXe() << endl;
+						cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
+					}
 				}
 			}
 			check = true;
@@ -550,7 +585,7 @@ Motobike* QL_RentalMoto::searchMotobike(const string& method) {
 		case 6:
 		{
 			if (method != "search") {
-				cout << "\tError: seclection invalid!" << endl;
+				cout << "\t\t\tError: seclection invalid!" << endl;
 				break;
 			}
 			bool Status, flash = false;
@@ -561,21 +596,29 @@ Motobike* QL_RentalMoto::searchMotobike(const string& method) {
 					getline(cin, TinhTrang);
 					if (!(TinhTrang == "ranh" || TinhTrang == "ban")) throw invalid_argument("Tinh Trang must is ranh or ban");
 					Status = (TinhTrang == "ranh") ? 0 : 1;
+					flash = true;
 				}
 				catch (invalid_argument& exception) {
 					cout << "\t" << exception.what() << endl;
 				}
 			} while (!flash);
+			cout << std::left << setw(10) << " Ma Xe" << "|" << setw(20) << " Ten Xe" << "|" << setw(15) << " Bien So" << "|" << setw(15) << " Color" << "|"
+				<< setw(10) << " Price/day" << "|" << setw(10) << " Status" << "|" << setw(15) << " Ma Loai Xe" << endl;
+			cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
 			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
 				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
-					if (TypeMoto[i]->getListMoto()[j]->getStatus() == Status) TypeMoto[i]->getListMoto()[j]->read();
+					if (TypeMoto[i]->getListMoto()[j]->getStatus() == Status) {
+						TypeMoto[i]->getListMoto()[j]->read();
+						cout << setw(15) << TypeMoto[i]->getMaLoaiXe() << endl;
+						cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
+					}
 				}
 			}
 			check = true;
 			break;
 		}
 		default:
-			cout << "\tError: seclection invalid!" << endl;
+			cout << "\t\t\tError: seclection invalid!" << endl;
 			break;
 		}
 	} while (!check);
@@ -592,9 +635,10 @@ void QL_RentalMoto::BookMotobike() {
 	bool success = false;
 	do {
 		try {
-			cout << "\tTen Loai Xe: ";
+			cout << "\t\t\t---------BOOK MOTOBIKE--------\n";
+			cout << "\t\t\tTen Loai Xe: ";
 			getline(cin, TenHangXe);
-			cout << "\tTen Xe: ";
+			cout << "\t\t\tTen Xe: ";
 			getline(cin, TenXe);
 			if (isValidNameCategorySame(TenHangXe.c_str())) throw invalid_argument("Error: Ten Loai Xe Not Exist!");
 			if (isValidNameMotobikeSame(TenXe.c_str())) throw invalid_argument("Error: Ten Xe Not Exist!");
@@ -612,7 +656,7 @@ void QL_RentalMoto::BookMotobike() {
 			success = true;
 		}
 		catch (invalid_argument& exception) {
-			cout << "\t" << exception.what() << endl;
+			cout << "\t\t\t" << exception.what() << endl;
 		}
 	} while (!success);
 	Rental* newRental = new Rental();
@@ -629,14 +673,14 @@ bool QL_RentalMoto::checkExistCustomers(const Customers& KH) {
 }
 
 void QL_RentalMoto::updateCategoryMotobike() {
-	cout << "\tUPDATE CATEGORY MOTOBIKE" << endl;
-	cout << "\t--------------------------" << endl;
-	cout << "\t|1. Update Ten Loai Xe   |" << endl;
-	cout << "\t--------------------------" << endl;
+	cout << "\t\t\tUPDATE CATEGORY MOTOBIKE" << endl;
+	cout << "\t\t\t--------------------------" << endl;
+	cout << "\t\t\t|1. Update Ten Loai Xe   |" << endl;
+	cout << "\t\t\t--------------------------" << endl;
 	int choose;
 	bool check = false;
 	do {
-		cout << "\t=>Choose: ";
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -647,18 +691,18 @@ void QL_RentalMoto::updateCategoryMotobike() {
 			bool flasg = false;
 			do {
 				try {
-					cout << "\tTen Loai Xe Old: ";
+					cout << "\t\t\tTen Loai Xe Old: ";
 					getline(cin, TenLoaiXeOld);
 					int pos_Category = this->searchNameCategory(TenLoaiXeOld);
 					if (pos_Category == -1) throw invalid_argument("Note: Ten Loai Xe Not Exist!");
-					cout << "\tTen Loai Xe New: ";
+					cout << "\t\t\tTen Loai Xe New: ";
 					getline(cin, TenLoaiXeNew);
 					if (!isValidNameCategorySame(TenLoaiXeNew.c_str())) throw invalid_argument("Note: Ten Loai Xe Trung Ten Loai Xe Old!");
 					TypeMoto[pos_Category]->setTenLoaiXe(&TenLoaiXeNew[0]);
 					flasg = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!flasg);
 			try {
@@ -676,7 +720,7 @@ void QL_RentalMoto::updateCategoryMotobike() {
 			break;
 		}
 		default:
-			cout << "\tError: You Choose invalid!" << endl;
+			cout << "\t\t\tError: You Choose invalid!" << endl;
 			break;
 		}
 	} while (!check);
@@ -688,15 +732,17 @@ void QL_RentalMoto::updateMotobike() {
 	int choose;
 	bool check = false;
 	do {
-		cout << "\tUPDATE MOTOBIKE\n";
-		cout << "\t1. Update Ten Xe" << endl;
-		cout << "\t2. Update Bien So" << endl;
-		cout << "\t3. Update Color" << endl;
-		cout << "\t4. Update Price rent" << endl;
-		cout << "\t5. Update Tinh Trang" << endl;
-		cout << "\t6. Update Loai Xe" << endl;
-		cout << "\t0. Exit(0)" << endl;
-		cout << "\t=>Choose: ";
+		cout << endl;
+		cout << "\t\t\t -----UPDATE MOTOBIKE-----\n";
+		cout << "\t\t\t| (1). Update Ten Xe      |" << endl;
+		cout << "\t\t\t| (2). Update Bien So     |" << endl;
+		cout << "\t\t\t| (3). Update Color       |" << endl;
+		cout << "\t\t\t| (4). Update Price rent  |" << endl;
+		cout << "\t\t\t| (5). Update Tinh Trang  |" << endl;
+		cout << "\t\t\t| (6). Update Loai Xe     |" << endl;
+		cout << "\t\t\t| (0). Exit(0)            |" << endl;
+		cout << "\t\t\t ------------------------\n";
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -704,7 +750,7 @@ void QL_RentalMoto::updateMotobike() {
 		case 1:
 		{
 			string TenXe;
-			cout << "\tNew Ten Xe: ";
+			cout << "\t\t\tNew Ten Xe: ";
 			getline(cin, TenXe);
 			try {
 				SACommand update;
@@ -725,7 +771,7 @@ void QL_RentalMoto::updateMotobike() {
 		case 2:
 		{
 			string BienSo;
-			cout << "\tNew Bien So: ";
+			cout << "\t\t\tNew Bien So: ";
 			getline(cin, BienSo);
 			try {
 				SACommand update;
@@ -746,7 +792,7 @@ void QL_RentalMoto::updateMotobike() {
 		case 3:
 		{
 			string Color;
-			cout << "\tNew Color: ";
+			cout << "\t\t\tNew Color: ";
 			getline(cin, Color);
 			try {
 				SACommand update;
@@ -767,7 +813,7 @@ void QL_RentalMoto::updateMotobike() {
 		case 4:
 		{
 			double PriceRent;
-			cout << "\tNew Price/Date: ";
+			cout << "\t\t\tNew Price/Date: ";
 			cin >> PriceRent;
 			cin.ignore();
 			try {
@@ -789,7 +835,7 @@ void QL_RentalMoto::updateMotobike() {
 		case 5:
 		{
 			bool StastusNew;
-			cout << "\tNew Status: ";
+			cout << "\t\t\tNew Status: ";
 			cin >> StastusNew;
 			cin.ignore();
 			try {
@@ -815,14 +861,14 @@ void QL_RentalMoto::updateMotobike() {
 			int pos_Category = -1;
 			do {
 				try {
-					cout << "Ten Loai Xe Moto: ";
+					cout << "\t\t\tTen Loai Xe Moto: ";
 					getline(cin, TenLoaiXeNew);
 					pos_Category = this->searchNameCategory(TenLoaiXeNew); // validate pos
 					if (pos_Category == -1)  throw invalid_argument("Note: Ten Loai Xe Not Exists!");
 					success = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!success);
 			try {
@@ -864,7 +910,7 @@ void QL_RentalMoto::updateMotobike() {
 			check = true;
 			break;
 		default:
-			cout << "\tError: You choose invalid !" << endl;
+			cout << "\t\t\tError: You choose invalid !" << endl;
 			break;
 		}
 	} while (!check);
@@ -891,21 +937,22 @@ int QL_RentalMoto::searchSDTCustomer(const string& SDT) {
 }
 
 Customers* QL_RentalMoto::searchCustomer(const string& method) {
-	cout << "\tSEACRH CUSTOMER" << endl;
-	cout << "\t1. Tim Kiem Ma Khach Hang" << endl;
-	cout << "\t2. Tim Kiem CMND Khach Hang" << endl;
-	cout << "\t3. Tim Kiem SDT Khach Hang" << endl;
+	cout << "\t\t\t ---------SEACRH CUSTOMER------------" << endl;
+	cout << "\t\t\t| (1). Tim Kiem Ma Khach Hang        |" << endl;
+	cout << "\t\t\t| (2). Tim Kiem CMND Khach Hang      |" << endl;
+	cout << "\t\t\t| (3). Tim Kiem SDT Khach Hang       |" << endl;
 	if (method == "search") {
-		cout << "\t4. Tim Kiem Ten Khach Hang" << endl;
-		cout << "\t5. Tim Kiem Country Khach Hang" << endl;
-		cout << "\t6. Tim Kiem City Khach Hang" << endl;
-		cout << "\t7. Tim Kiem Gender Khach Hang" << endl;
-		cout << "\t8. Tim kiem BirthDay Khach Hang" << endl;
+		cout << "\t\t\t| (4). Tim Kiem Ten Khach Hang       |" << endl;
+		cout << "\t\t\t| (5). Tim Kiem Country Khach Hang   |" << endl;
+		cout << "\t\t\t| (6). Tim Kiem City Khach Hang      |" << endl;
+		cout << "\t\t\t| (7). Tim Kiem Gender Khach Hang    |" << endl;
+		cout << "\t\t\t| (8). Tim kiem BirthDay Khach Hang  |" << endl;
 	}
+	cout << "\t\t\t ------------------------------------" << endl;
 	int choose;
 	bool flash = false;
 	do {
-		cout << "\t=>Choose: ";
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -913,49 +960,68 @@ Customers* QL_RentalMoto::searchCustomer(const string& method) {
 		case 1:
 		{
 			int maKH;
-			cout << "\tSearch Ma Khach Hang: ";
+			cout << "\t\t\tSearch Ma Khach Hang: ";
 			cin >> maKH;
 			cin.ignore();
 			try {
 				int pos_maKH = this->searchMaCustomer(maKH);
 				if (pos_maKH < 0) throw invalid_argument("Note: Ma Khach Hang Not Exist!");
+				cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
+					<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
+					<< "|" << setw(10) << "Gender" << "|" << setw(20) << "  BirthDay" << endl;
+				cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+					"----+----------+--------------------" << endl;
 				cout << *Customer[pos_maKH]; // validate pos
 				flash = true;
 				return Customer[pos_maKH];
 			}
 			catch (invalid_argument& exception) {
-				cout << "\t" << exception.what() << endl;
+				cout << "\t\t\t" << exception.what() << endl;
 			}
 			break;
 		}
 		case 4:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			string fullnameKH;
-			cout << "\tSearch Name Khach Hang: ";
+			cout << "\t\t\tSearch Name Khach Hang: ";
 			getline(cin, fullnameKH);
+			cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
+				<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
+				<< "|" << setw(10) << "Gender" << "|" << setw(20) << "  BirthDay" << endl;
+			cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+				"----+----------+--------------------" << endl;
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
-				if (string(Customer[i]->getFullName()) == fullnameKH) cout << *Customer[i];
+				if (string(Customer[i]->getFullName()) == fullnameKH) {
+					cout << *Customer[i];
+					cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+						"----+----------+--------------------" << endl;
+				}
 			}
 			break;
 		}
 		case 2:
 		{
 			string CMND;
-			cout << "\tSearch CMND Khach Hang: ";
+			cout << "\t\t\tSearch CMND Khach Hang: ";
 			getline(cin, CMND);
 			int pos_CMND = this->searchCMNDCustomer(CMND);
 			try {
 				if (pos_CMND < 0) throw invalid_argument("Note: CMND Khach Hang Not Exist!");
+				cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
+					<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
+					<< "|" << setw(10) << "Gender" << "|" << setw(20) << "  BirthDay" << endl;
+				cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+					"----+----------+--------------------" << endl;
 				cout << *Customer[pos_CMND]; // validate pos
 				flash = true;
 				return Customer[pos_CMND];
 			}
 			catch (invalid_argument& exception) {
-				cout << "\t" << exception.what() << endl;
+				cout << "\t\t\t" << exception.what() << endl;
 			}
 			break;
 		}
@@ -964,39 +1030,51 @@ Customers* QL_RentalMoto::searchCustomer(const string& method) {
 			string SDT; bool check = false;
 			do {
 				try {
-					cout << "\tSearch SDT Khach Hang: ";
+					cout << "\t\t\tSearch SDT Khach Hang: ";
 					getline(cin, SDT);
 					if (!Customer[0]->isValidPhone(SDT.c_str())) throw invalid_argument("Phone must is number!");
 					check = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!check);
 			int pos_SDT = this->searchSDTCustomer(SDT);
 			try {
 				if (pos_SDT < 0) throw invalid_argument("Note: SDT Khach Hang Not Exist!");
+				cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
+					<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
+					<< "|" << setw(10) << "Gender" << "|" << setw(20) << "  BirthDay" << endl;
+				cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+					"----+----------+--------------------" << endl;
 				cout << *Customer[pos_SDT]; // validate pos
 				flash = true;
 				return Customer[pos_SDT];
 			}
 			catch (invalid_argument& exception) {
-				cout << "\t" << exception.what() << endl;
+				cout << "\t\t\t" << exception.what() << endl;
 			}
 			break;
 		}
 		case 5:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			string Country;
-			cout << "\tSearch Country Khach Hang: ";
+			cout << "\t\t\tSearch Country Khach Hang: ";
 			getline(cin, Country);
+			cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
+				<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
+				<< "|" << setw(10) << "Gender" << "|" << setw(20) << "  BirthDay" << endl;
+			cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+				"----+----------+--------------------" << endl;
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				if (string(Customer[i]->getCountry()) == Country) {
 					cout << *Customer[i];
+					cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+						"----+----------+--------------------" << endl;
 				}
 			}
 			flash = true;
@@ -1005,15 +1083,22 @@ Customers* QL_RentalMoto::searchCustomer(const string& method) {
 		case 6:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			string City;
 			cout << "\tSearch City Khach Hang: ";
 			getline(cin, City);
+			cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
+				<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
+				<< "|" << setw(10) << "Gender" << "|" << setw(20) << "  BirthDay" << endl;
+			cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+				"----+----------+--------------------" << endl;
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				if (string(Customer[i]->getCity()) == City) {
 					cout << *Customer[i];
+					cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+						"----+----------+--------------------" << endl;
 				}
 			}
 			flash = true;
@@ -1022,26 +1107,33 @@ Customers* QL_RentalMoto::searchCustomer(const string& method) {
 		case 7:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			bool check = false;
 			string GioiTinh;
 			do {
 				try {
-					cout << "\tSearch Gender Khach Hang: ";
+					cout << "\t\t\tSearch Gender Khach Hang: ";
 					getline(cin, GioiTinh);
 					if (!(GioiTinh == "nam" || GioiTinh == "nu")) throw invalid_argument("Gender must is nam or nu!");
 					check = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!check);
 			bool Gender = (GioiTinh == "nam") ? 1 : 0;
+			cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
+				<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
+				<< "|" << setw(10) << "Gender" << "|" << setw(20) << "  BirthDay" << endl;
+			cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+				"----+----------+--------------------" << endl;
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				if (Customer[i]->getGender() == Gender) {
 					cout << *Customer[i];
+					cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+						"----+----------+--------------------" << endl;
 				}
 			}
 			flash = true;
@@ -1050,11 +1142,11 @@ Customers* QL_RentalMoto::searchCustomer(const string& method) {
 		case 8:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			Date BirthDay;
-			cout << "\tSearch BirthDay Khach Hang: ";
+			cout << "\t\t\tSearch BirthDay Khach Hang: ";
 			bool check = false;
 			do {
 				try {
@@ -1063,19 +1155,26 @@ Customers* QL_RentalMoto::searchCustomer(const string& method) {
 					check = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!check);
+			cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
+				<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
+				<< "|" << setw(10) << "Gender" << "|" << setw(20) << "  BirthDay" << endl;
+			cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+				"----+----------+--------------------" << endl;
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				if (Customer[i]->getBirthday() == BirthDay) {
 					cout << *Customer[i];
+					cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+						"----+----------+--------------------" << endl;
 				}
 			}
 			flash = true;
 			break;
 		}
 		default:
-			cout << "\tError: You choose invalid !" << endl;
+			cout << "\t\t\tError: You choose invalid !" << endl;
 			break;
 		}
 	} while (!flash);
@@ -1088,16 +1187,17 @@ void QL_RentalMoto::updateCustomer() {
 	int choose;
 	bool check = false;
 	do {
-		cout << "\tUPDATE CUSTOMER" << endl;
-		cout << "\t1. Update Name Customer" << endl;
-		cout << "\t2. Update Address Country Customer" << endl;
-		cout << "\t3. Update Address City Customer" << endl;
-		cout << "\t4. Update CMND Customer" << endl;
-		cout << "\t5. Update SDT Customer" << endl;
-		cout << "\t6. Update Email Customer" << endl;
-		cout << "\t7. Update Birtday Customer" << endl;
-		cout << "\t0. Exit(0)" << endl;
-		cout << "\t=>Choose: ";
+		cout << "\t\t\t -----------UPDATE CUSTOMER------------" << endl;
+		cout << "\t\t\t| (1). Update Name Customer            |" << endl;
+		cout << "\t\t\t| (2). Update Address Country Customer |" << endl;
+		cout << "\t\t\t| (3). Update Address City Customer    |" << endl;
+		cout << "\t\t\t| (4). Update CMND Customer            |" << endl;
+		cout << "\t\t\t| (5). Update SDT Customer             |" << endl;
+		cout << "\t\t\t| (6). Update Email Customer           |" << endl;
+		cout << "\t\t\t| (7). Update Birtday Customer         |" << endl;
+		cout << "\t\t\t| (0). Exit(0)                         |" << endl;
+		cout << "\t\t\t --------------------------------------" << endl;
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -1105,7 +1205,7 @@ void QL_RentalMoto::updateCustomer() {
 		case 1:
 		{
 			string nameKH;
-			cout << "\tNew Name Khach Hang: ";
+			cout << "\t\t\tNew Name Khach Hang: ";
 			getline(cin, nameKH);
 			try {
 				SACommand update;
@@ -1125,7 +1225,7 @@ void QL_RentalMoto::updateCustomer() {
 		case 2:
 		{
 			string Country;
-			cout << "\tNew Country Khach Hang: ";
+			cout << "\t\t\tNew Country Khach Hang: ";
 			getline(cin, Country);
 			try {
 				SACommand update;
@@ -1145,7 +1245,7 @@ void QL_RentalMoto::updateCustomer() {
 		case 3:
 		{
 			string City;
-			cout << "\tNew City Khach Hang: ";
+			cout << "\t\t\tNew City Khach Hang: ";
 			getline(cin, City);
 			try {
 				SACommand update;
@@ -1167,13 +1267,13 @@ void QL_RentalMoto::updateCustomer() {
 			string CMND; bool check = false;
 			do {
 				try {
-					cout << "\tNew CMND Khach Hang: ";
+					cout << "\t\t\tNew CMND Khach Hang: ";
 					getline(cin, CMND);
 					if (!(CMND.length() == 9 || CMND.length() == 12)) throw invalid_argument("CMND must length 9 or 12 number!");
 					check = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!check);
 			try {
@@ -1195,13 +1295,13 @@ void QL_RentalMoto::updateCustomer() {
 			string SDT; bool check = false;
 			do {
 				try {
-					cout << "\tNew SDT Khach Hang: ";
+					cout << "\t\t\tNew SDT Khach Hang: ";
 					getline(cin, SDT);
 					if (!KhachHang->isValidPhone(SDT.c_str())) throw invalid_argument("Phone must is number!");
 					check = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!check);
 			try {
@@ -1224,13 +1324,13 @@ void QL_RentalMoto::updateCustomer() {
 			string Email; bool check = false;
 			do {
 				try {
-					cout << "\tNew Email Khach Hang: ";
+					cout << "\t\t\tNew Email Khach Hang: ";
 					getline(cin, Email);
 					if (!KhachHang->isValidEmailAddress(Email.c_str())) throw invalid_argument("Email must begin character 'a' -> 'z' or 'A' -> 'Z' and '@' must is before the dot !");
 					check = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!check);
 			try {
@@ -1253,13 +1353,13 @@ void QL_RentalMoto::updateCustomer() {
 			Date BirthDay; bool check = false;
 			do {
 				try {
-					cout << "\tNew BirthDay Khach Hang: ";
+					cout << "\t\t\tNew BirthDay Khach Hang: ";
 					BirthDay.scan();
 					BirthDay.isValid();
 					check = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!check);
 			try {
@@ -1283,28 +1383,29 @@ void QL_RentalMoto::updateCustomer() {
 			check = true;
 			break;
 		default:
-			cout << "\tError: You choose invalid !" << endl;
+			cout << "\t\t\tError: You choose invalid !" << endl;
 			break;
 		}
 	} while (!check);
 }
 
 Rental* QL_RentalMoto::searchRental(const string& method) {
-	cout << "\tSEARCH RENTAL" << endl;
-	cout << "\t1. Search Ma Rental" << endl;
-	cout << "\t2. Search Rental Motobike By Customer And Rent Day" << endl;
-	cout << "\t3. Search Rental Motobike By Motobike And Rent Day" << endl;
+	cout << "\t\t\t -------------------SEARCH RENTAL---------------------" << endl;
+	cout << "\t\t\t| (1). Search Ma Rental                               |" << endl;
+	cout << "\t\t\t| (2). Search Rental Motobike By Customer And Rent Day|" << endl;
+	cout << "\t\t\t| (3). Search Rental Motobike By Motobike And Rent Day|" << endl;
 	if (method == "search") {
-		cout << "\t4. Search All Motobike Rented By Customer" << endl;
-		cout << "\t5. Search All Customers Rental Motobike" << endl;
-		cout << "\t6. Search All Rental Motobike By Rent Day" << endl;
-		cout << "\t7. Search All Rental Motobike By Return Day" << endl;
-		cout << "\t8. Search All Rental Motobike By Tinh Trang" << endl;
+		cout << "\t\t\t| (4). Search All Motobike Rented By Customer         |" << endl;
+		cout << "\t\t\t| (5). Search All Customers Rental Motobike           |" << endl;
+		cout << "\t\t\t| (6). Search All Rental Motobike By Rent Day         |" << endl;
+		cout << "\t\t\t| (7). Search All Rental Motobike By Return Day       |" << endl;
+		cout << "\t\t\t| (8). Search All Rental Motobike By Tinh Trang       |" << endl;
 	}
+	cout << "\t\t\t -----------------------------------------------------" << endl;
 	int choose;
 	bool success = false;
 	do {
-		cout << "\t=>Choose: ";
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -1312,7 +1413,7 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 		case 1:
 		{
 			int MaRental;
-			cout << "\tSearch Ma Rental: ";
+			cout << "\t\t\tSearch Ma Rental: ";
 			cin >> MaRental; cin.ignore();
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
@@ -1322,7 +1423,7 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 					}
 				}
 			}
-			cout << "\tError: Rental not exist !" << endl;
+			cout << "\t\t\tError: Rental not exist !" << endl;
 			success = true;
 			break;
 		}
@@ -1331,16 +1432,16 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 			string TenXe, TenKH, CMND;
 			Date RentDay;
 			if (choose == 2) {
-				cout << "\tTen Khach Hang: ";
+				cout << "\t\t\tTen Khach Hang: ";
 				getline(cin, TenKH);
-				cout << "\tCMND: ";
+				cout << "\t\t\tCMND: ";
 				getline(cin, CMND);
 			}
 			else {
-				cout << "\tTen Xe: ";
+				cout << "\t\t\tTen Xe: ";
 				getline(cin, TenXe);
 			}
-			cout << "\tNgay Thue";
+			cout << "\t\t\tNgay Thue";
 			RentDay.scan();
 			if (choose == 2) {
 				int pos_customer = this->searchCustomerByCMNDAndName(CMND, TenKH);
@@ -1364,18 +1465,18 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 					}
 				}
 			}
-			cout << "\tError: Rental not exist !" << endl;
+			cout << "\t\t\tError: Rental not exist !" << endl;
 			success = true;
 			break;
 		}
 		case 4:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			string TenKH;
-			cout << "\tTen Khach Hang: ";
+			cout << "\t\t\tTen Khach Hang: ";
 			getline(cin, TenKH);
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				if (string(Customer[i]->getFullName()) == TenKH) {
@@ -1390,11 +1491,11 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 		case 5:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			string TenXe;
-			cout << "\tTen Xe: ";
+			cout << "\t\t\tTen Xe: ";
 			getline(cin, TenXe);
 			int pos_category = this->searchCategoryOfMotobike(TenXe.c_str());
 			for (unsigned int j = 0; j < TypeMoto[pos_category]->getListMoto().size(); ++j) {
@@ -1410,11 +1511,11 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 		case 6:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			Date Rent_date;
-			cout << "\tRent Day";
+			cout << "\t\t\tRent Day";
 			Rent_date.scan();
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
@@ -1429,11 +1530,11 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 		case 7:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			Date Return_date;
-			cout << "\tReturn Day";
+			cout << "\t\t\tReturn Day";
 			Return_date.scan();
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
@@ -1448,20 +1549,20 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 		case 8:
 		{
 			if (method != "search") {
-				cout << "\tError: You choose invalid !" << endl;
+				cout << "\t\t\tError: You choose invalid !" << endl;
 				break;
 			}
 			bool status, check = false;
 			string TinhTrang;
 			do {
 				try {
-					cout << "Tinh Trang: ";
+					cout << "\t\t\tTinh Trang: ";
 					getline(cin, TinhTrang);
 					if (!(TinhTrang == "da tra" || TinhTrang == "chua tra")) throw invalid_argument("Note: Tinh Trang phai la da tra hoac chua tra!");
 					check = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!check);
 			status = (TinhTrang == "da tra") ? 1 : 0;
@@ -1476,7 +1577,7 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 			break;
 		}
 		default:
-			cout << "\tError: You choose invalid !" << endl;
+			cout << "\t\t\tError: You choose invalid !" << endl;
 			break;
 		}
 	} while (!success);
@@ -1489,14 +1590,15 @@ void QL_RentalMoto::updateRental() {
 	int choose;
 	bool check = false;
 	do {
-		cout << "\tUPDATE RENTAL" << endl;
-		cout << "\t1. Update Xe Rental" << endl;
-		cout << "\t2. Update Khach Hang Rental" << endl;
-		cout << "\t3. Update Rent Day" << endl;
-		cout << "\t4. Update Return Day" << endl;
-		cout << "\t5. Update Tinh Trang" << endl;
-		cout << "\t0. Exits(0)" << endl;
-		cout << "\t=>Choose: ";
+		cout << "\t\t\t ---------UPDATE RENTAL--------" << endl;
+		cout << "\t\t\t| (1). Update Xe Rental        |" << endl;
+		cout << "\t\t\t| (2). Update Khach Hang Rental|" << endl;
+		cout << "\t\t\t| (3). Update Rent Day         |" << endl;
+		cout << "\t\t\t| (4). Update Return Day       |" << endl;
+		cout << "\t\t\t| (5). Update Tinh Trang       |" << endl;
+		cout << "\t\t\t| (0). Exits(0)                |" << endl;
+		cout << "\t\t\t ------------------------------" << endl;
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -1507,7 +1609,7 @@ void QL_RentalMoto::updateRental() {
 			bool flash = false;
 			int MaXeOld = -1;
 			try {
-				cout << "\tTen Xe: ";
+				cout << "\t\t\tTen Xe: ";
 				getline(cin, TenXe);
 				int MaXe = this->searchNameMotobike(TenXe);
 				if (MaXe == -1) throw invalid_argument("Note: Motobike Not Exist!");
@@ -1554,7 +1656,7 @@ void QL_RentalMoto::updateRental() {
 				select.Execute();
 			}
 			catch (invalid_argument& exception) {
-				cout << "\t" << exception.what() << endl;
+				cout << "\t\t\t" << exception.what() << endl;
 			}
 			catch (SAException& e) {
 				cout << e.ErrText().GetMultiByteChars() << endl;
@@ -1574,9 +1676,9 @@ void QL_RentalMoto::updateRental() {
 		{
 			string TenKH, CMND;
 			try {
-				cout << "\tTen Khach Hang Rent: ";
+				cout << "\t\t\tTen Khach Hang Rent: ";
 				getline(cin, TenKH);
-				cout << "\tCMND Khach Hang Rent: ";
+				cout << "\t\t\tCMND Khach Hang Rent: ";
 				getline(cin, CMND);
 				int pos_KH = this->searchCustomerByCMNDAndName(CMND, TenKH);
 				if (pos_KH == -1)  throw invalid_argument("Note: Khach Hang Not Exist !");
@@ -1612,7 +1714,7 @@ void QL_RentalMoto::updateRental() {
 				}
 			}
 			catch (invalid_argument& exception) {
-				cout << "\t" << exception.what() << endl;
+				cout << "\t\t\t" << exception.what() << endl;
 			}
 			catch (SAException& e) {
 				cout << e.ErrText().GetMultiByteChars() << endl;
@@ -1626,7 +1728,7 @@ void QL_RentalMoto::updateRental() {
 			switch (choose) {
 			case 3:
 			{
-				cout << "\tUpdate Ngay Thue";
+				cout << "\t\t\tUpdate Ngay Thue";
 				date_new.scan();
 				SADateTime date_Rent(date_new.getYear(), date_new.getMonth(), date_new.getDay());
 				try {
@@ -1644,7 +1746,7 @@ void QL_RentalMoto::updateRental() {
 			}
 			case 4:
 			{
-				cout << "\tUpdate Ngay Tra";
+				cout << "\t\t\tUpdate Ngay Tra";
 				date_new.scan();
 				try {
 					SADateTime dateNew(date_new.getYear(), date_new.getMonth(), date_new.getDay());
@@ -1666,14 +1768,14 @@ void QL_RentalMoto::updateRental() {
 				do {
 					try {
 						string TinhTrang;
-						cout << "\tUpdate Tinh Trang: ";
+						cout << "\t\t\tUpdate Tinh Trang: ";
 						getline(cin, TinhTrang);
 						if (!(TinhTrang == "da tra" || TinhTrang == "chua tra")) throw invalid_argument("Note: Tinh Trang phai la da tra hoac chua tra!");
 						status = (TinhTrang == "da tra") ? 1 : 0;
 						flash = true;
 					}
 					catch (invalid_argument& exception) {
-						cout << "\t" << exception.what() << endl;
+						cout << "\t\t\t" << exception.what() << endl;
 					}
 				} while (!flash);
 				try {
@@ -1739,14 +1841,14 @@ void QL_RentalMoto::updateRental() {
 			break;
 		}
 		default:
-			cout << "\tError: You choose invalid!" << endl;
+			cout << "\t\t\tError: You choose invalid!" << endl;
 			break;
 		}
 	} while (!check);
 }
 
 void QL_RentalMoto::ReturnMotobike() {
-	cout << "\tRETURN MOTOBIKE" << endl;
+	cout << "\t\t\t---------RETURN MOTOBIKE-----------" << endl;
 	string NameKH, CMND;
 	Date RentDay, ReturnDay;
 	Rental* rentalMoto = nullptr;
@@ -1756,13 +1858,13 @@ void QL_RentalMoto::ReturnMotobike() {
 	int pos_customer = -1;
 	do {
 		try {
-			cout << "\tTen Khach Hang: ";
+			cout << "\t\t\tTen Khach Hang: ";
 			getline(cin, NameKH);
-			cout << "\tCMND: ";
+			cout << "\t\t\tCMND: ";
 			getline(cin, CMND);
 			pos_customer = this->searchCustomerByCMNDAndName(CMND, NameKH);
 			if (pos_customer == -1) throw invalid_argument("Error: Khach Hang Not Exist!");
-			cout << "\tNgay Thue: ";
+			cout << "\t\t\tNgay Thue: ";
 			RentDay.scan();
 			for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
 				if (Customer[pos_customer]->getListRental()[i]->getRentDay().getDay() == RentDay.getDay()) {
@@ -1771,12 +1873,12 @@ void QL_RentalMoto::ReturnMotobike() {
 				}
 			}
 			if (!kt) throw invalid_argument("Error: Rental Not Exists!");
-			cout << "\tUpdate Ngay Tra: ";
+			cout << "\t\t\tUpdate Ngay Tra: ";
 			ReturnDay.scan();
 			success = true;
 		}
 		catch (invalid_argument& exception) {
-			cout << "\t" << exception.what() << endl;
+			cout << "\t\t\t" << exception.what() << endl;
 		}
 	} while (!success);
 	for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
@@ -1855,12 +1957,13 @@ bool QL_RentalMoto::isValidNameCategorySame(const char* name) {
 }
 
 Category* QL_RentalMoto::searchCategory() {
-	cout << "\tSEARCH CATEGORY" << endl;
-	cout << "\t1. Search Ma Category Motobike" << endl;
-	cout << "\t2. Searc Name Category Motrobike" << endl;
+	cout << "\t\t\t ---------SEARCH CATEGORY-------------" << endl;
+	cout << "\t\t\t| (1). Search Ma Category Motobike    |" << endl;
+	cout << "\t\t\t| (2). Search Name Category Motrobike |" << endl;
+	cout << "\t\t\t -------------------------------------" << endl;
 	int choose; bool check = false;
 	do {
-		cout << "\t=>Choose: ";
+		cout << "\t\t\t=>Choose: ";
 		cin >> choose;
 		cin.ignore();
 		switch (choose)
@@ -1870,7 +1973,7 @@ Category* QL_RentalMoto::searchCategory() {
 			int maCategory; bool flash = false;
 			do {
 				try {
-					cout << "\tMa Loai Xe: ";
+					cout << "\t\t\tMa Loai Xe: ";
 					cin >> maCategory; cin.ignore();
 					int pos_Category = this->searchMaCategory(maCategory);
 					if (pos_Category == -1) throw invalid_argument("Note: Ma Loai Xe Not Exists!");
@@ -1879,7 +1982,7 @@ Category* QL_RentalMoto::searchCategory() {
 					flash = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!flash);
 			check = true;
@@ -1890,7 +1993,7 @@ Category* QL_RentalMoto::searchCategory() {
 			string nameCategory; bool flash = false;
 			do {
 				try {
-					cout << "\tTen Loai Xe: ";
+					cout << "\t\t\tTen Loai Xe: ";
 					getline(cin, nameCategory);
 					int pos_Category = this->searchNameCategory(nameCategory);
 					if (pos_Category == -1) throw invalid_argument("Note: Ten Loai Xe Not Exists!");
@@ -1899,14 +2002,14 @@ Category* QL_RentalMoto::searchCategory() {
 					flash = true;
 				}
 				catch (invalid_argument& exception) {
-					cout << "\t" << exception.what() << endl;
+					cout << "\t\t\t" << exception.what() << endl;
 				}
 			} while (!flash);
 			check = true;
 			break;
 		}
 		default:
-			cout << "\tError: You Choose Invalid!" << endl;
+			cout << "\t\t\tError: You Choose Invalid!" << endl;
 			break;
 		}
 	} while (!check);
@@ -2136,21 +2239,21 @@ bool upCustomers(char* s1, char* s2) {
 //}
 
 void QL_RentalMoto::SortCustomer() {
-	cout << "\tSORT CUSTOMER\n";
-	cout << "\t1. Sort Decrease Customers By Name" << endl;
-	cout << "\t2. Sort Increase Customers By Name" << endl;
-	cout << "\t0. Exit(0)" << endl;
+	cout << "\t\t\t --------------SORT CUSTOMER------------\n";
+	cout << "\t\t\t| (1). Sort Decrease Customers By Name  |" << endl;
+	cout << "\t\t\t| (2). Sort Increase Customers By Name  |" << endl;
+	cout << "\t\t\t| (0). Exit(0)                          |" << endl;
+	cout << "\t\t\t ---------------------------------------" << endl;
 	int selection;
 	bool flash = false;
 	do {
-		cout << "\t=>selection: ";
+		cout << "\t\t\t=>selection: ";
 		cin >> selection;
 		cin.ignore();
 		switch (selection)
 		{
 		case 1:
 		{
-
 			//this->QuickSortCustomer(0, Customer.size(), &QL_RentalMoto::downCustomers);
 			QuickSortCustomer<QL_RentalMoto, Customers>(0, Customer.size() - 1, downCustomers, Customer);
 			break;
@@ -2167,21 +2270,22 @@ void QL_RentalMoto::SortCustomer() {
 			break;
 		}
 		default:
-			cout << "Error: You selection invalid!" << endl;
+			cout << "\t\t\tError: You selection invalid!" << endl;
 			break;
 		}
 	} while (!flash);
 }
 
 void QL_RentalMoto::SortCategory() {
-	cout << "\tSORT CUSTOMER\n";
-	cout << "\t1. Sort Decrease Category By Name Type Category" << endl;
-	cout << "\t2. Sort Increase Customers By Name Type Category" << endl;
-	cout << "\t0. Exit(0)" << endl;
+	cout << "\t\t\t ----------------------SORT CUSTOMER------------------\n";
+	cout << "\t\t\t| (1). Sort Decrease Category By Name Type Category   |" << endl;
+	cout << "\t\t\t| (2). Sort Increase Customers By Name Type Category  |" << endl;
+	cout << "\t\t\t| (0). Exit(0)                                        |" << endl;
+	cout << "\t\t\t -----------------------------------------------------" << endl;
 	int selection;
 	bool flash = false;
 	do {
-		cout << "\t=>selection: ";
+		cout << "\t\t\t=>Selection: ";
 		cin >> selection;
 		cin.ignore();
 		switch (selection)
@@ -2205,8 +2309,18 @@ void QL_RentalMoto::SortCategory() {
 			break;
 		}
 		default:
-			cout << "Error: You selection invalid!" << endl;
+			cout << "\t\t\tError: You selection invalid!" << endl;
 			break;
 		}
 	} while (!flash);
+}
+
+int QL_RentalMoto::searchMaXeByMaRental(int ma_rental) {
+	for (unsigned int i = 0; i < TypeMoto.size(); ++i) 
+		for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j)
+			for (unsigned int k = 0; k < TypeMoto[i]->getListMoto()[j]->getListRental().size(); ++k) {
+				if (TypeMoto[i]->getListMoto()[j]->getListRental()[k]->getMaRental() == ma_rental) {
+					return  TypeMoto[i]->getListMoto()[j]->getMaXe();
+				}
+			}
 }

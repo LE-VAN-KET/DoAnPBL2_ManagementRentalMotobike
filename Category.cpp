@@ -81,6 +81,8 @@ ostream& operator<<(ostream& out, const Category& type) {
 void Category::readMotobike() {
 	for (unsigned int i = 0; i < this->Moto.size(); ++i) {
 		this->Moto[i]->read();
+		cout << setw(15) << this->MaLoaiXe << endl;
+		cout << "----------+--------------------+---------------+---------------+----------+----------+---------------" << endl;
 	}
 }
 

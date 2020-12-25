@@ -134,9 +134,11 @@ ostream& operator<<(ostream& out, const Customers& customer) {
 	//out << "Address Email: " << customer.email << endl;
 	//out << "Gender: " << ((customer.gender) ? "nam" : "nu") << endl;
 	//out << "BirthDay: " << customer.birthDay << endl;
-	out << std::left << setw(10) << customer.maKH << "| " << setw(10) << customer.fullName << "|  " << setw(10) << customer.country
-		<< "|  " << setw(10) << customer.city << "|  " << setw(10) << customer.CMND << "|  " << setw(15) << customer.email << "|  " << setw(10) << customer.SDT
-		<< "|  " << setw(5) << ((customer.gender) ? "nam" : "nu") << "|  " <<  customer.birthDay ;
+	out << std::left << setw(10) << customer.maKH << "|" << setw(25) << customer.fullName << "|" << setw(15) << customer.country
+		<< "|" << setw(15) << customer.city << "|" << setw(15) << customer.CMND << "|" << setw(35) << customer.email << "|" << setw(10) << customer.SDT
+		<< "|" << setw(10) << ((customer.gender) ? "nam" : "nu") << "|" << customer.birthDay << endl; ;
+	cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
+		"----+----------+--------------------" << endl;
 	return out;
 }
 

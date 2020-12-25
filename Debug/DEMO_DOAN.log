@@ -1,5 +1,3 @@
-﻿  Customers.cpp
-  Date.cpp
-  QL_RentalMoto.cpp
-  Generating Code...
+﻿  QL_RentalMoto.cpp
+C:\Users\Administrator\source\repos\DEMO_DOAN\DEMO_DOAN\QL_RentalMoto.cpp(2326): warning C4715: 'QL_RentalMoto::searchMaXeByMaRental': not all control paths return a value
   DEMO_DOAN.vcxproj -> C:\Users\Administrator\source\repos\DEMO_DOAN\Debug\DEMO_DOAN.exe

@@ -56,14 +56,16 @@ bool Rental::getStatus() {
 	return this->Status;
 }
 void Rental::read() {
-	cout << "\t\t->Thong tin Rental\n";
-	cout << "Ma Rental: " << this->MaRental << endl;
-	cout << "Rent day: ";
-	this->RentDay.showDate();
-	cout << "Return day: ";
-	this->ReturnDay.showDate();
-	cout << "Thanh Tien: " << setprecision(3) << fixed << this->ThanhTien << endl;
-	cout << "Status: " << this->Status << endl;
+	//cout << "\t\t->Thong tin Rental\n";
+	//cout << "Ma Rental: " << this->MaRental << endl;
+	//cout << "Rent day: ";
+	//this->RentDay.showDate();
+	//cout << "Return day: ";
+	//this->ReturnDay.showDate();
+	//cout << "Thanh Tien: " << setprecision(3) << fixed << this->ThanhTien << endl;
+	//cout << "Status: " << this->Status << endl;
+	cout << std::left << setw(10) << this->MaRental << "|" << setw(15) << this->RentDay << "|" << setw(15) << this->ReturnDay << "|"
+		<< setw(15) << setprecision(3) << fixed << this->ThanhTien << "|" << setw(10) << this->Status << "|";
 }
 
 bool Rental::operator==(const Rental& rental) {

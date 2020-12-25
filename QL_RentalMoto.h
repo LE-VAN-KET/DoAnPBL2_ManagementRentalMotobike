@@ -45,6 +45,7 @@ public:
 	int searchSDTCustomer(const string&);
 	Customers* searchCustomer(const string& = "search");
 	Rental* searchRental(const string & = "search");
+	int searchMaXeByMaRental(int); // return ma motobike
 	/*
 	// Tim kiem ten xe
 	// return ma xe;

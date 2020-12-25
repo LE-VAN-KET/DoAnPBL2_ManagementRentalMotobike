@@ -68,4 +68,9 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="sqlcreateTable.sql">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

@@ -163,6 +163,9 @@
   <ItemGroup>
     <ResourceCompile Include="DEMO_DOAN.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="sqlcreateTable.sql" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

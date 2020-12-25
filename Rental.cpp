@@ -14,9 +14,9 @@ Rental::Rental(int day1, int month1, int year1, int day2, int month2, int year2,
 }
 
 void Rental::scan() {
-	cout << "\tNgay Thue";
+	cout << "\t\t\tNgay Thue";
 	this->RentDay.scan();
-	cout << "\tNgay Tra";
+	cout << "\t\t\tNgay Tra";
 	this->ReturnDay.scan();
 	this->ThanhTien = 0;
 	this->Status = 0;

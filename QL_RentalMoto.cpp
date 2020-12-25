@@ -446,7 +446,7 @@ void QL_RentalMoto::readAllRental() {
  	for (unsigned int i = 0; i < Customer.size(); ++i) {
 		for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
 			Customer[i]->getListRental()[j]->read();
-			cout << setw(15) << this->searchMaXeByMaRental(Customer[i]->getListRental()[j]->getMaRental()) << "|" << setw(15) << Customer[i]->getMaKH() << endl;
+			cout << setw(15) << Customer[i]->getMaKH() << "|" << setw(15) << this->searchMaXeByMaRental(Customer[i]->getListRental()[j]->getMaRental()) << endl;
 			cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 		}
 	}
@@ -997,10 +997,9 @@ Customers* QL_RentalMoto::searchCustomer(const string& method) {
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				if (string(Customer[i]->getFullName()) == fullnameKH) {
 					cout << *Customer[i];
-					cout << "----------+-------------------------+---------------+---------------+---------------+-----------------------------------+------"
-						"----+----------+--------------------" << endl;
 				}
 			}
+			flash = true;
 			break;
 		}
 		case 2:
@@ -1010,6 +1009,7 @@ Customers* QL_RentalMoto::searchCustomer(const string& method) {
 			getline(cin, CMND);
 			int pos_CMND = this->searchCMNDCustomer(CMND);
 			try {
+				if (!(CMND.length() == 9 || CMND.length() == 12)) throw invalid_argument("CMND must length 9 or 12 number!");
 				if (pos_CMND < 0) throw invalid_argument("Note: CMND Khach Hang Not Exist!");
 				cout << std::left << setw(10) << " Ma KH" << "|" << setw(25) << " Full Name" << "|" << setw(15) << " Country"
 					<< "|" << setw(15) << "  City" << "|" << setw(15) << "  CMND" << "|" << setw(35) << "  Email" << "|" << setw(10) << "  Phone"
@@ -1396,7 +1396,7 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 	cout << "\t\t\t| (3). Search Rental Motobike By Motobike And Rent Day|" << endl;
 	if (method == "search") {
 		cout << "\t\t\t| (4). Search All Motobike Rented By Customer         |" << endl;
-		cout << "\t\t\t| (5). Search All Customers Rental Motobike           |" << endl;
+		cout << "\t\t\t| (5). Search All Customers Rental By Motobike        |" << endl;
 		cout << "\t\t\t| (6). Search All Rental Motobike By Rent Day         |" << endl;
 		cout << "\t\t\t| (7). Search All Rental Motobike By Return Day       |" << endl;
 		cout << "\t\t\t| (8). Search All Rental Motobike By Tinh Trang       |" << endl;
@@ -1418,7 +1418,11 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
 					if (Customer[i]->getListRental()[j]->getMaRental() == MaRental) {
+						cout << std::left << setw(10) << " Ma rental" << "|" << setw(15) << " RentDay" << "|" << setw(15) << " ReturnDay" << "|"
+							<< setw(15) << " ThanhTien" << "|" << setw(10) << "Status" << "|" << setw(15) << " MaKH" << "|" << setw(15) << " Ma Xe" << endl;
+						cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 						Customer[i]->getListRental()[j]->read();
+						cout << setw(15) << Customer[i]->getMaKH() << "|" << setw(15) << this->searchMaXeByMaRental(MaRental) << endl;
 						return Customer[i]->getListRental()[j];
 					}
 				}
@@ -1447,7 +1451,12 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 				int pos_customer = this->searchCustomerByCMNDAndName(CMND, TenKH);
 				for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
 					if (Customer[pos_customer]->getListRental()[i]->getRentDay() == RentDay) {
+						cout << std::left << setw(10) << " Ma rental" << "|" << setw(15) << " RentDay" << "|" << setw(15) << " ReturnDay" << "|"
+							<< setw(15) << " ThanhTien" << "|" << setw(10) << "Status" << "|" << setw(15) << " MaKH" << "|" << setw(15) << " Ma Xe" << endl;
+						cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 						Customer[pos_customer]->getListRental()[i]->read();
+						cout << setw(15) << Customer[i]->getMaKH() << "|";
+						cout << setw(15) << this->searchMaXeByMaRental(Customer[pos_customer]->getListRental()[i]->getMaRental()) << endl;
 						return Customer[pos_customer]->getListRental()[i];
 					}
 				}
@@ -1458,7 +1467,18 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 					if (string(TypeMoto[pos_category]->getListMoto()[i]->getTenXe()) == TenXe) {
 						for (unsigned int k = 0; k < TypeMoto[pos_category]->getListMoto()[i]->getListRental().size(); ++k) {
 							if (TypeMoto[pos_category]->getListMoto()[i]->getListRental()[k]->getRentDay() == RentDay) {
+								cout << std::left << setw(10) << " Ma rental" << "|" << setw(15) << " RentDay" << "|" << setw(15) << " ReturnDay" << "|"
+									<< setw(15) << " ThanhTien" << "|" << setw(10) << "Status" << "|" << setw(15) << " MaKH" << "|" << setw(15) << " Ma Xe" << endl;
+								cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 								TypeMoto[pos_category]->getListMoto()[i]->getListRental()[k]->read();
+								for (unsigned int i = 0; i < Customer.size(); ++i) {
+									for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
+										if (Customer[i]->getListRental()[j]->getMaRental() == TypeMoto[pos_category]->getListMoto()[i]->getListRental()[k]->getMaRental()) {
+											cout << setw(15) << Customer[i]->getMaKH() << "|";
+										}
+									}
+								}
+								cout << setw(15) << TypeMoto[pos_category]->getListMoto()[i]->getMaXe() << endl;
 								return TypeMoto[pos_category]->getListMoto()[i]->getListRental()[k];
 							}
 						}
@@ -1478,10 +1498,16 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 			string TenKH;
 			cout << "\t\t\tTen Khach Hang: ";
 			getline(cin, TenKH);
+			cout << std::left << setw(10) << " Ma rental" << "|" << setw(15) << " RentDay" << "|" << setw(15) << " ReturnDay" << "|"
+				<< setw(15) << " ThanhTien" << "|" << setw(10) << "Status" << "|" << setw(15) << " MaKH" << "|" << setw(15) << " Ma Xe" << endl;
+			cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				if (string(Customer[i]->getFullName()) == TenKH) {
 					for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
 						Customer[i]->getListRental()[j]->read();
+						cout << setw(15) << Customer[i]->getMaKH()
+							<< "|" << setw(15) << this->searchMaXeByMaRental(Customer[i]->getListRental()[j]->getMaRental()) << endl;
+						cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 					}
 				}
 			}
@@ -1500,8 +1526,20 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 			int pos_category = this->searchCategoryOfMotobike(TenXe.c_str());
 			for (unsigned int j = 0; j < TypeMoto[pos_category]->getListMoto().size(); ++j) {
 				if (string(TypeMoto[pos_category]->getListMoto()[j]->getTenXe()) == TenXe) {
+					cout << std::left << setw(10) << " Ma rental" << "|" << setw(15) << " RentDay" << "|" << setw(15) << " ReturnDay" << "|"
+						<< setw(15) << " ThanhTien" << "|" << setw(10) << "Status" << "|" << setw(15) << " MaKH" << "|" << setw(15) << " Ma Xe" << endl;
+					cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 					for (unsigned int k = 0; k < TypeMoto[pos_category]->getListMoto()[j]->getListRental().size(); ++k) {
 						TypeMoto[pos_category]->getListMoto()[j]->getListRental()[k]->read();
+						for (unsigned int i = 0; i < Customer.size(); ++i) {
+							for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
+								if (Customer[i]->getListRental()[j]->getMaRental() == TypeMoto[pos_category]->getListMoto()[i]->getListRental()[k]->getMaRental()) {
+									cout << setw(15) << Customer[i]->getMaKH() << "|";
+								}
+							}
+						}
+						cout << setw(15) << TypeMoto[pos_category]->getListMoto()[j]->getMaXe() << endl;
+						cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 					}
 				}
 			}
@@ -1517,10 +1555,16 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 			Date Rent_date;
 			cout << "\t\t\tRent Day";
 			Rent_date.scan();
+			cout << std::left << setw(10) << " Ma rental" << "|" << setw(15) << " RentDay" << "|" << setw(15) << " ReturnDay" << "|"
+				<< setw(15) << " ThanhTien" << "|" << setw(10) << "Status" << "|" << setw(15) << " MaKH" << "|" << setw(15) << " Ma Xe" << endl;
+			cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
 					if (Customer[i]->getListRental()[j]->getRentDay() == Rent_date) {
 						Customer[i]->getListRental()[j]->read();
+						cout << setw(15) << Customer[i]->getMaKH() << "|";
+						cout << setw(15) << this->searchMaXeByMaRental(Customer[i]->getListRental()[j]->getMaRental()) << endl;
+						cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 					}
 				}
 			}
@@ -1536,10 +1580,16 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 			Date Return_date;
 			cout << "\t\t\tReturn Day";
 			Return_date.scan();
+			cout << std::left << setw(10) << " Ma rental" << "|" << setw(15) << " RentDay" << "|" << setw(15) << " ReturnDay" << "|"
+				<< setw(15) << " ThanhTien" << "|" << setw(10) << "Status" << "|" << setw(15) << " MaKH" << "|" << setw(15) << " Ma Xe" << endl;
+			cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
 					if (Customer[i]->getListRental()[j]->getReturnDay() == Return_date) {
 						Customer[i]->getListRental()[j]->read();
+						cout << setw(15) << Customer[i]->getMaKH() << "|";
+						cout << setw(15) << this->searchMaXeByMaRental(Customer[i]->getListRental()[j]->getMaRental()) << endl;
+						cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 					}
 				}
 			}
@@ -1566,10 +1616,16 @@ Rental* QL_RentalMoto::searchRental(const string& method) {
 				}
 			} while (!check);
 			status = (TinhTrang == "da tra") ? 1 : 0;
+			cout << std::left << setw(10) << " Ma rental" << "|" << setw(15) << " RentDay" << "|" << setw(15) << " ReturnDay" << "|"
+				<< setw(15) << " ThanhTien" << "|" << setw(10) << "Status" << "|" << setw(15) << " MaKH" << "|" << setw(15) << " Ma Xe" << endl;
+			cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 			for (unsigned int i = 0; i < Customer.size(); ++i) {
 				for (unsigned int j = 0; j < Customer[i]->getListRental().size(); ++j) {
 					if (Customer[i]->getListRental()[j]->getStatus() == status) {
 						Customer[i]->getListRental()[j]->read();
+						cout << setw(15) << Customer[i]->getMaKH() << "|";
+						cout << setw(15) << this->searchMaXeByMaRental(Customer[i]->getListRental()[j]->getMaRental()) << endl;
+						cout << "----------+---------------+---------------+---------------+----------+---------------+--------------" << endl;
 					}
 				}
 			}
@@ -1867,7 +1923,7 @@ void QL_RentalMoto::ReturnMotobike() {
 			cout << "\t\t\tNgay Thue: ";
 			RentDay.scan();
 			for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
-				if (Customer[pos_customer]->getListRental()[i]->getRentDay().getDay() == RentDay.getDay()) {
+				if (Customer[pos_customer]->getListRental()[i]->getRentDay() == RentDay) {
 					kt = true;
 					break;
 				}
@@ -1924,6 +1980,34 @@ void QL_RentalMoto::ReturnMotobike() {
 		cmd.Param(_TSA("MaXe")).setAsInt64() = maMotobike;
 		cmd.Param(_TSA("TinhTrang")).setAsBool() = false;
 		cmd.Execute();
+		SACommand select;
+		select.setConnection(&con);
+		select.setCommandText(_TSA("SELECT ThanhTien, MaRental FROM Rental WHERE MaKH = :MaKH AND MaXe = :MaXe AND Rent_date = :Rent_date"));
+		select.Param(_TSA("MaKH")).setAsInt64() = Customer[pos_customer]->getMaKH();
+		select.Param(_TSA("MaXe")).setAsInt64() = maMotobike;
+		select.Param(_TSA("Rent_date")).setAsDateTime() = Rent_Date;
+		select.Execute();
+		while (select.FetchNext()) {
+			double ThanhTien = select.Field("ThanhTien").asDouble();
+			sa_int64_t MaRental = select.Field("MaRental").asInt64();
+			for (unsigned int i = 0; i < Customer[pos_customer]->getListRental().size(); ++i) {
+				if (Customer[pos_customer]->getListRental()[i]->getMaRental() == (int)MaRental) {
+					Customer[pos_customer]->getListRental()[i]->setThanhTien(ThanhTien);
+					break;
+				}
+			}
+			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
+				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
+					if (TypeMoto[i]->getListMoto()[j]->getMaXe() == maMotobike) {
+						for (unsigned int k = 0; k < TypeMoto[i]->getListMoto()[j]->getListRental().size(); ++k) {
+							if (TypeMoto[i]->getListMoto()[j]->getListRental()[k]->getRentDay() == RentDay) {
+								TypeMoto[i]->getListMoto()[j]->getListRental()[k]->setThanhTien(ThanhTien);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	catch (SAException& e) {
 		cout << e.ErrText().GetMultiByteChars() << endl;
@@ -1977,6 +2061,8 @@ Category* QL_RentalMoto::searchCategory() {
 					cin >> maCategory; cin.ignore();
 					int pos_Category = this->searchMaCategory(maCategory);
 					if (pos_Category == -1) throw invalid_argument("Note: Ma Loai Xe Not Exists!");
+					cout << "\t" << std::left << setw(20) << "Ma Loai Xe" << "|\t" << setw(20) << "Ten Loai Xe" << "|\t" << setw(20) << "Number" << endl;
+					cout << std::right << setw(10) << "-" << "------------------+-----------------------+----------" << endl;
 					cout << *TypeMoto[pos_Category];
 					return TypeMoto[pos_Category];
 					flash = true;
@@ -1997,6 +2083,8 @@ Category* QL_RentalMoto::searchCategory() {
 					getline(cin, nameCategory);
 					int pos_Category = this->searchNameCategory(nameCategory);
 					if (pos_Category == -1) throw invalid_argument("Note: Ten Loai Xe Not Exists!");
+					cout << "\t" << std::left << setw(20) << "Ma Loai Xe" << "|\t" << setw(20) << "Ten Loai Xe" << "|\t" << setw(20) << "Number" << endl;
+					cout << std::right << setw(10) << "-" << "------------------+-----------------------+----------" << endl;
 					cout << *TypeMoto[pos_Category];
 					return TypeMoto[pos_Category];
 					flash = true;

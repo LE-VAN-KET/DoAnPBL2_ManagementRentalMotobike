@@ -82,6 +82,7 @@ public:
 	bool isValidNameCategorySame(const char*); // check same Name Category
 	bool isValidNameMotobikeSame(const char*); // check same name motobike 
 	bool isValidBienSoMotobikeSame(const char*);
+	bool idValidNameCategorySam(const string&);
 	/*DELETE*/
 	void deleteCustomers();
 	void deleteCategory();

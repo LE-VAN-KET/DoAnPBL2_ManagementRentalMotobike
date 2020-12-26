@@ -60,21 +60,25 @@ void QL_RentalMoto::addCategory() {
 	Category *t = new Category();
 	t->scan();
 	try {
+		if (!idValidNameCategorySam(string(t->getTenLoaiXe()))) throw invalid_argument("Error: Ten Loai Xe Exist!");
 		SACommand cmd;
 		cmd.setConnection(&con);
 		cmd.setCommandText(_TSA("INSERT INTO Category VALUES(:TenLoaiXe, :Number)"));
 		cmd.Param(_TSA("Number")).setAsInt64() = 0;
 		cmd.Param(_TSA("TenLoaiXe")).setAsString() = _TSA(t->getTenLoaiXe());
 		cmd.Execute();
+		t->setCategoryID(t->getCategoryID() + 1);
+		t->setMaLoaiXe(t->getCategoryID());
+		if (TypeMoto.size() == 0) this->selectCategory();
+		else {
+			this->TypeMoto.push_back(t);
+		}
+	}
+	catch (invalid_argument& exception) {
+		cout << "\t\t\t" << exception.what() << endl;
 	}
 	catch (SAException& e) {
 		cout << e.ErrText().GetMultiByteChars() << endl;
-	}
-	t->setCategoryID(t->getCategoryID() + 1);
-	t->setMaLoaiXe(t->getCategoryID());
-	if (TypeMoto.size() == 0) this->selectCategory();
-	else {
-		this->TypeMoto.push_back(t);
 	}
 }
 
@@ -174,15 +178,15 @@ void QL_RentalMoto::addMotobike() {
 		update.setCommandText(_TSA("UPDATE Category SET Number = Number + 1 WHERE MaLoaiXe = :MaLoaiXe"));
 		update.Param(_TSA("MaLoaiXe")).setAsInt64() = this->TypeMoto[pos]->getMaLoaiXe();
 		update.Execute();
+		if (moto->getMotobikeID() == 0) this->selectMotobike();
+		else this->TypeMoto[pos]->addMotobike(moto);
+		moto->setMotobikeID(moto->getMotobikeID() + 1);
+		moto->setMaXe(moto->getMotobikeID());
+		this->TypeMoto[pos]->setNumber(TypeMoto[pos]->getNumber() + 1);
 	}
 	catch (SAException& e) {
 		cout << e.ErrText().GetMultiByteChars() << endl;
 	}
-	if (moto->getMotobikeID() == 0) this->selectMotobike();
-	else this->TypeMoto[pos]->addMotobike(moto);
-	moto->setMotobikeID(moto->getMotobikeID() + 1);
-	moto->setMaXe(moto->getMotobikeID());
-	this->TypeMoto[pos]->setNumber(TypeMoto[pos]->getNumber() + 1);
 }
 
 void QL_RentalMoto::selectMotobike() {
@@ -263,12 +267,12 @@ void QL_RentalMoto::addCustomers() {
 			if (!isValidSDTSame(customer->getSDT())) throw invalid_argument("Note: SDT really exists");
 			if (!isValidEmailSame(customer->getEmail())) throw invalid_argument("Note: Email really exists");
 			check = true;
+			this->insertCustomer(customer);
 		}
 		catch (invalid_argument& exception) {
-			cout << "\t" << exception.what() << endl;
+			cout << "\t\t\t" << exception.what() << endl;
 		}
 	} while (!check);
-	this->insertCustomer(customer);
 }
 
 void QL_RentalMoto::selectCustomers() {
@@ -2016,19 +2020,19 @@ void QL_RentalMoto::ReturnMotobike() {
 
 bool QL_RentalMoto::isValidEmailSame(const char* email) { // check same email
 	for (unsigned int i = 0; i < Customer.size(); ++i) {
-		if (email == Customer[i]->getEmail()) return false;
+		if (string(email) == string(Customer[i]->getEmail())) return false;
 	}
 	return true;
 }
 bool QL_RentalMoto::isValidCMNDSame(const char* CMND) { //check same CMND
 	for (unsigned int i = 0; i < Customer.size(); ++i) {
-		if (CMND == Customer[i]->getCMND()) return false;
+		if (string(CMND) == string(Customer[i]->getCMND())) return false;
 	}
 	return true;
 }
 bool QL_RentalMoto::isValidSDTSame(const char* SDT) { //check same SDT
 	for (unsigned int i = 0; i < Customer.size(); ++i) {
-		if (SDT == Customer[i]->getSDT()) return false;
+		if (string(SDT) == string(Customer[i]->getSDT())) return false;
 	}
 	return true;
 }
@@ -2404,11 +2408,18 @@ void QL_RentalMoto::SortCategory() {
 }
 
 int QL_RentalMoto::searchMaXeByMaRental(int ma_rental) {
-	for (unsigned int i = 0; i < TypeMoto.size(); ++i) 
+	for (unsigned int i = 0; i < TypeMoto.size(); ++i)
 		for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j)
 			for (unsigned int k = 0; k < TypeMoto[i]->getListMoto()[j]->getListRental().size(); ++k) {
 				if (TypeMoto[i]->getListMoto()[j]->getListRental()[k]->getMaRental() == ma_rental) {
 					return  TypeMoto[i]->getListMoto()[j]->getMaXe();
 				}
 			}
+}
+
+bool QL_RentalMoto::idValidNameCategorySam(const string& TenCategory) {
+	for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
+		if (string(TypeMoto[i]->getTenLoaiXe()) == TenCategory) return false;
+	}
+	return true;
 }

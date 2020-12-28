@@ -89,11 +89,12 @@ public:
 	void deleteMotobike();
 	void deleteRental();
 	/*SORT*/
-	//void QuickSortCustomer(int, int, bool (QL_RentalMoto::*sort)(char*, char*));
-	//bool downCustomers(char*, char*);
-	//bool upCustomers(char*, char*);
+	void QuickSortCustomer(int, int, bool (QL_RentalMoto::*sort)(char*, char*));
+	bool downCustomers(char*, char*);
+	bool upCustomers(char*, char*);
 	void SortCustomer();
 	void SortCategory();
+	char* split(string str, string delimiter);
 	void close();
 	~QL_RentalMoto();
 };

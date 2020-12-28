@@ -354,20 +354,20 @@ void QL_RentalMoto::insertRental(Rental* rental, int ma_motobike, int pos_custom
 				double ThanhTien = select.Field("ThanhTien").asDouble();
 				rental->setThanhTien(ThanhTien);
 			}
+			rental->setRentalID(rental->getRentalID() + 1);
+			rental->setMaRental(rental->getRentalID());
+			this->Customer[pos_customer]->addRental(rental);
+			for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
+				for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
+					if (TypeMoto[i]->getListMoto()[j]->getMaXe() == ma_motobike) {
+						this->TypeMoto[i]->getListMoto()[j]->addRental(rental);
+						this->TypeMoto[i]->getListMoto()[j]->setStatus(true); // update status motobike
+					}
+				}
+			}
 		}
 		catch (SAException& e) {
 			cout << e.ErrText().GetMultiByteChars() << endl;
-		}
-		rental->setRentalID(rental->getRentalID() + 1);
-		rental->setMaRental(rental->getRentalID());
-		this->Customer[pos_customer]->addRental(rental);
-		for (unsigned int i = 0; i < TypeMoto.size(); ++i) {
-			for (unsigned int j = 0; j < TypeMoto[i]->getListMoto().size(); ++j) {
-				if (TypeMoto[i]->getListMoto()[j]->getMaXe() == ma_motobike) {
-					this->TypeMoto[i]->getListMoto()[j]->addRental(rental);
-					this->TypeMoto[i]->getListMoto()[j]->setStatus(true); // update status motobike
-				}
-			}
 		}
 	}
 }
@@ -2302,33 +2302,45 @@ void QL_RentalMoto::deleteRental() {
 	}
 }
 
-bool downCustomers(char* s1, char* s2) {
-	return (strcmp(s1, s2) > 0) ? 1 : 0;
+char* QL_RentalMoto::split(string str, string delimiter) {
+	int pos = 0;
+	while ((pos = str.find(delimiter)) != string::npos) {
+		str.erase(0, pos + delimiter.length());
+	}
+	return &str[0];
 }
 
-bool upCustomers(char* s1, char* s2) {
-	return (strcmp(s1, s2) > 0) ? 0 : 1;
+bool QL_RentalMoto::downCustomers(char* s1, char* s2) {
+	char* a = split(string(s1), " ");
+	char* b = split(string(s2), " ");
+	return (strcmp(a, b) > 0) ? 1 : 0;
 }
 
-//void QL_RentalMoto::QuickSortCustomer(int start, int end, bool (QL_RentalMoto::*sort)(char*, char*)) {
-//	int left = start, right = end - 1;
-//	if (left <= right) {
-//		char* pivot = Customer[(start + end) / 2]->getFullName();
-//		while (left <= right) {
-//			while ((this->*sort)(Customer[left]->getFullName(), pivot)) ++left;
-//			while (!(this->*sort)(Customer[right]->getFullName(), pivot)) --right;
-//			if (left < right) {
-//				Customers* temp1 = Customer[left];
-//				Customers* temp2 = Customer[right];
-//				Customer[left] = temp2;
-//				Customer[right] = temp1;
-//			}
-//			left++; right--;
-//		}
-//		if (start < right) QuickSortCustomer(start, right, sort);
-//		if (left < end) QuickSortCustomer(left, end, sort);
-//	}
-//}
+bool QL_RentalMoto::upCustomers(char* s1, char* s2) {
+	char* a = split(string(s1), " ");
+	char* b = split(string(s2), " ");
+	return (strcmp(a, b) > 0) ? 0 : 1;
+}
+
+void QL_RentalMoto::QuickSortCustomer(int start, int end, bool (QL_RentalMoto::*sort)(char*, char*)) {
+	int left = start, right = end - 1;
+	if (left <= right) {
+		char* pivot = Customer[(start + end) / 2]->getFullName();
+		while (left <= right) {
+			while ((this->*sort)(Customer[left]->getFullName(), pivot)) ++left;
+			while (!(this->*sort)(Customer[right]->getFullName(), pivot)) --right;
+			if (left < right) {
+				Customers* temp1 = Customer[left];
+				Customers* temp2 = Customer[right];
+				Customer[left] = temp2;
+				Customer[right] = temp1;
+			}
+			left++; right--;
+		}
+		if (start < right) QuickSortCustomer(start, right, sort);
+		if (left < end) QuickSortCustomer(left, end, sort);
+	}
+}
 
 void QL_RentalMoto::SortCustomer() {
 	cout << "\t\t\t --------------SORT CUSTOMER------------\n";
@@ -2346,14 +2358,14 @@ void QL_RentalMoto::SortCustomer() {
 		{
 		case 1:
 		{
-			//this->QuickSortCustomer(0, Customer.size(), &QL_RentalMoto::downCustomers);
-			QuickSortCustomer<QL_RentalMoto, Customers>(0, Customer.size() - 1, downCustomers, Customer);
+			this->QuickSortCustomer(0, Customer.size(), &QL_RentalMoto::downCustomers);
+			//QuickSortCustomer<QL_RentalMoto, Customers>(0, Customer.size() - 1, downCustomers, Customer);
 			break;
 		}
 		case 2:
 		{
-			//this->QuickSortCustomer(0, Customer.size(), upCustomers);
-			QuickSortCustomer<QL_RentalMoto, Customers>(0, Customer.size() - 1, upCustomers, Customer);
+			this->QuickSortCustomer(0, Customer.size(), &QL_RentalMoto::upCustomers);
+			//QuickSortCustomer<QL_RentalMoto, Customers>(0, Customer.size() - 1, upCustomers, Customer);
 			break;
 		}
 		case 0:
@@ -2384,15 +2396,14 @@ void QL_RentalMoto::SortCategory() {
 		{
 		case 1:
 		{
-
 			//this->QuickSortCustomer(0, Customer.size(), &QL_RentalMoto::downCustomers);
-			QuickSortCategory<QL_RentalMoto, Category>(0, TypeMoto.size() - 1, downCustomers, TypeMoto);
+			//QuickSortCategory<QL_RentalMoto, Category>(0, TypeMoto.size() - 1, downCustomers, TypeMoto);
 			break;
 		}
 		case 2:
 		{
 			//this->QuickSortCustomer(0, Customer.size(), upCustomers);
-			QuickSortCategory<QL_RentalMoto, Category>(0, TypeMoto.size() - 1, upCustomers, TypeMoto);
+			//QuickSortCategory<QL_RentalMoto, Category>(0, TypeMoto.size() - 1, upCustomers, TypeMoto);
 			break;
 		}
 		case 0:
